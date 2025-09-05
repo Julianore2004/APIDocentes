@@ -3,674 +3,520 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 require_once __DIR__ . '/../config/database.php';
-
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ' . BASE_URL . 'views/login.php');
-    exit();
+header('Location: ' . BASE_URL . 'views/login.php');
+exit();
 }
-
+// Manejar eliminación
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 require_once __DIR__ . '/../controllers/DocenteController.php';
 $docenteController = new DocenteController();
-
-// Determinar si es edición o creación
-$isEditing = isset($_GET['edit']) && is_numeric($_GET['edit']);
-$docente = null;
-$pageTitle = $isEditing ? '✏️ Editar Docente' : '➕ Agregar Nuevo Docente';
-
-if ($isEditing) {
-    $docente = $docenteController->obtenerDocente($_GET['edit']);
-    if (!$docente) {
-        header('Location: ' . BASE_URL . 'views/docentes_list.php');
-        exit();
-    }
+if ($docenteController->borrarDocente($_GET['delete'])) {
+$mensaje = "✅ Docente eliminado exitosamente";
+$tipo_mensaje = "success";
+} else {
+$mensaje = "❌ Error al eliminar el docente";
+$tipo_mensaje = "error";
 }
-
-// Procesar formulario
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombres = trim($_POST['nombres']);
-    $apellidos = trim($_POST['apellidos']);
-    $correo = trim($_POST['correo']);
-    $telefono = trim($_POST['telefono']);
-    $especialidad = trim($_POST['especialidad']);
-
-    // Validaciones
-    $errores = [];
-
-    if (empty($nombres)) {
-        $errores[] = "El campo Nombres es obligatorio";
-    }
-
-    if (empty($apellidos)) {
-        $errores[] = "El campo Apellidos es obligatorio";
-    }
-
-    if (!empty($correo) && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-        $errores[] = "El formato del correo electrónico no es válido";
-    }
-
-    if (!empty($telefono) && !preg_match('/^[\d\s\-\+\(\)]+$/', $telefono)) {
-        $errores[] = "El formato del teléfono no es válido";
-    }
-
-    if (empty($errores)) {
-        if ($isEditing) {
-            $resultado = $docenteController->editarDocente($_GET['edit'], $nombres, $apellidos, $correo, $telefono, $especialidad);
-            if ($resultado) {
-                $mensaje = "✅ Docente actualizado exitosamente";
-                $tipo_mensaje = "success";
-                // Recargar datos del docente
-                $docente = $docenteController->obtenerDocente($_GET['edit']);
-            } else {
-                $mensaje = "❌ Error al actualizar el docente";
-                $tipo_mensaje = "error";
-            }
-        } else {
-            $resultado = $docenteController->crearDocente($nombres, $apellidos, $correo, $telefono, $especialidad);
-            if ($resultado) {
-                header('Location: ' . BASE_URL . 'views/docentes_list.php?created=1');
-                exit();
-            } else {
-                $mensaje = "❌ Error al crear el docente";
-                $tipo_mensaje = "error";
-            }
-        }
-    }
 }
-
+// Obtener lista de docentes
+require_once __DIR__ . '/../controllers/DocenteController.php';
+$docenteController = new DocenteController();
+$docentes = $docenteController->listarDocentes();
+// Obtener lista de carreras
+require_once __DIR__ . '/../models/Carrera.php';
+$carreraModel = new Carrera();
+$carreras = $carreraModel->obtenerTodas();
 require_once __DIR__ . '/include/header.php';
 ?>
-
 <style>
-    /* Estilos globales */
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .fade-in {
-        animation: fadeIn 0.5s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    /* Breadcrumb */
-    .breadcrumb {
-        margin-bottom: 2rem;
-        color: #666;
-        font-size: 0.875rem;
-    }
-
-    .breadcrumb a {
-        color: #667eea;
-        text-decoration: none;
-    }
-
-    .breadcrumb span {
-        margin: 0 0.5rem;
-    }
-
-    /* Mensajes */
-    .message {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        border-radius: 5px;
-        text-align: center;
-        font-weight: 500;
-    }
-
-    .message.success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .message.error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-
-    .message.error ul {
-        margin: 0.5rem 0 0 1.5rem;
-        padding: 0;
-        text-align: left;
-    }
-
-    /* Contenedor del formulario */
-    .form-container {
-        background: white;
-        border-radius: 10px;
-        padding: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Encabezado del formulario */
-    .form-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-    }
-
-    .form-header h2 {
-        color: #2d3748;
-        margin: 0;
-    }
-
-    /* Vista previa del docente */
-    .docente-preview {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-        border-left: 4px solid #667eea;
-    }
-
-    .preview-content {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .docente-avatar {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 1.5rem;
-    }
-
-    .preview-info h4 {
-        margin: 0;
-        color: #2d3748;
-    }
-
-    .preview-info p {
-        margin: 0.25rem 0 0 0;
-        color: #666;
-    }
-
-    /* Secciones del formulario */
-    .form-section {
-        background: rgba(255, 255, 255, 0.8);
-        padding: 1.5rem;
-        border-radius: 10px;
-        border-left: 4px solid;
-        margin-bottom: 1.5rem;
-    }
-
-    .form-section.personal {
-        background: rgba(72, 187, 120, 0.05);
-        border-left-color: #48bb78;
-    }
-
-    .form-section.contact {
-        background: rgba(66, 153, 225, 0.05);
-        border-left-color: #4299e1;
-    }
-
-    .form-section.specialty {
-        background: rgba(237, 137, 54, 0.05);
-        border-left-color: #ed8936;
-    }
-
-    .form-section h4 {
-        color: #2d3748;
-        margin-bottom: 1rem;
-    }
-
-    /* Grupos de formulario */
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #4a5568;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 5px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        outline: none;
-    }
-
-    .form-control::placeholder {
-        color: #a0aec0;
-    }
-
-    /* Especialidades sugeridas */
-    .suggested-specialties {
-        margin-top: 1rem;
-    }
-
-    .suggested-specialties label {
-        font-size: 0.875rem;
-        color: #666;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .specialty-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .specialty-tag {
-        background: rgba(102, 126, 234, 0.1);
-        border: 1px solid rgba(102, 126, 234, 0.3);
-        color: #667eea;
-        padding: 0.25rem 0.5rem;
-        border-radius: 15px;
-        font-size: 0.75rem;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .specialty-tag:hover {
-        background: rgba(72, 187, 120, 0.2);
-        border-color: #48bb78;
-        color: #22543d;
-    }
-
-    /* Botones de acción */
-    .form-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid #e2e8f0;
-    }
-
-    .form-actions .required-note {
-        color: #666;
-        font-size: 0.875rem;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-    }
-
-    /* Botones */
-    .btn {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-success {
-        background-color: #48bb78;
-        color: white;
-    }
-
-    .btn-warning {
-        background-color: #fbbf24;
-        color: white;
-    }
-
-    .btn-danger {
-        background-color: #f56565;
-        color: white;
-    }
-
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-cancel {
-        background-color: #e2e8f0;
-        color: #4a5568;
-        box-shadow: none;
-    }
-
-    .btn-cancel:hover {
-        background-color: #cbd5e0;
-        transform: none;
-    }
-
-    /* Layout del formulario */
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-    }
-
-    /* Loading indicator */
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .loading {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: white;
-        animation: spin 1s ease-in-out infinite;
-        margin-right: 0.5rem;
-    }
+/* Estilos globales */
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+.fade-in {
+animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+/* Mensajes */
+.message {
+padding: 1rem;
+margin-bottom: 1.5rem;
+border-radius: 5px;
+text-align: center;
+font-weight: 500;
+}
+.message.success {
+background-color: #d4edda;
+color: #155724;
+border: 1px solid #c3e6cb;
+}
+.message.error {
+background-color: #f8d7da;
+color: #721c24;
+border: 1px solid #f5c6cb;
+}
+/* Contenedor de la tabla */
+.table-container {
+background: white;
+border-radius: 10px;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+overflow: hidden;
+}
+/* Encabezado de la tabla */
+.table-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1.5rem;
+background: rgba(102, 126, 234, 0.05);
+border-bottom: 1px solid #e2e8f0;
+}
+.table-header h3 {
+color: #2d3748;
+margin: 0;
+}
+/* Barra de búsqueda y filtros */
+.search-filter-container {
+padding: 1.5rem;
+background: rgba(102, 126, 234, 0.05);
+border-bottom: 1px solid #e2e8f0;
+}
+.search-filter {
+display: flex;
+gap: 1rem;
+align-items: center;
+flex-wrap: wrap;
+}
+.form-control {
+padding: 0.75rem;
+border: 1px solid #e2e8f0;
+border-radius: 5px;
+font-size: 1rem;
+flex: 1;
+min-width: 200px;
+}
+/* Tabla */
+.table {
+width: 100%;
+border-collapse: collapse;
+}
+.table th, .table td {
+padding: 1rem;
+text-align: left;
+border-bottom: 1px solid #e2e8f0;
+}
+.table th {
+background-color: #f7fafc;
+font-weight: 600;
+color: #2d3748;
+cursor: pointer;
+}
+.sort-indicator {
+margin-left: 0.5rem;
+}
+/* Avatar del docente */
+.docente-avatar {
+width: 40px;
+height: 40px;
+background: linear-gradient(135deg, #667eea, #764ba2);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-weight: bold;
+}
+/* Especialidades */
+.especialidad-badge {
+background: rgba(102, 126, 234, 0.1);
+color: #667eea;
+padding: 0.25rem 0.5rem;
+border-radius: 5px;
+font-size: 0.75rem;
+margin: 0.25rem;
+display: inline-block;
+}
+/* Carrera */
+.carrera-badge {
+background: rgba(76, 175, 80, 0.1);
+color: #4caf50;
+padding: 0.25rem 0.5rem;
+border-radius: 5px;
+font-size: 0.75rem;
+margin: 0.25rem;
+display: inline-block;
+}
+/* Botones */
+.btn {
+display: inline-block;
+padding: 0.5rem 1rem;
+border-radius: 5px;
+text-decoration: none;
+font-weight: 500;
+transition: all 0.3s ease;
+border: none;
+cursor: pointer;
+}
+.btn-success {
+background-color: #48bb78;
+color: white;
+}
+.btn-warning {
+background-color: #fbbf24;
+color: white;
+}
+.btn-danger {
+background-color: #f56565;
+color: white;
+}
+.btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.btn-small {
+padding: 0.375rem 0.75rem;
+font-size: 0.875rem;
+}
+.table-actions {
+display: flex;
+gap: 0.5rem;
+}
+/* Estado vacío */
+.empty-state {
+padding: 3rem;
+text-align: center;
+color: #666;
+}
+.empty-state-icon {
+font-size: 4rem;
+margin-bottom: 1rem;
+}
+/* Estadísticas del listado */
+.table-stats {
+padding: 1rem 2rem;
+background: rgba(102, 126, 234, 0.05);
+border-top: 1px solid #e2e8f0;
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 1rem;
+}
 </style>
-
 <div class="container fade-in">
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <a href="<?php echo BASE_URL; ?>views/dashboard.php">🏠 Dashboard</a>
-        <span>></span>
-        <a href="<?php echo BASE_URL; ?>views/docentes_list.php">👥 Docentes</a>
-        <span>></span>
-        <span><?php echo $isEditing ? 'Editar' : 'Nuevo'; ?></span>
-    </div>
-
-    <!-- Mensajes -->
-    <?php if (isset($mensaje)): ?>
-    <div class="message <?php echo $tipo_mensaje; ?>">
-        <?php echo $mensaje; ?>
-    </div>
-    <?php endif; ?>
-
-    <?php if (!empty($errores)): ?>
-    <div class="message error">
-        <strong>❌ Se encontraron los siguientes errores:</strong>
-        <ul>
-            <?php foreach ($errores as $error): ?>
-            <li><?php echo htmlspecialchars($error); ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-    <?php endif; ?>
-
-    <div class="form-container">
-        <!-- Encabezado del formulario -->
-        <div class="form-header">
-            <h2><?php echo $pageTitle; ?></h2>
-            <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="btn btn-cancel">
-                ← Volver al listado
-            </a>
-        </div>
-
-        <!-- Vista previa del docente (solo en edición) -->
-        <?php if ($isEditing && $docente): ?>
-        <div class="docente-preview">
-            <div class="preview-content">
-                <div class="docente-avatar">
-                    <?php echo strtoupper(substr($docente['nombres'], 0, 1) . substr($docente['apellidos'], 0, 1)); ?>
-                </div>
-                <div class="preview-info">
-                    <h4><?php echo htmlspecialchars($docente['nombres'] . ' ' . $docente['apellidos']); ?></h4>
-                    <p>ID: <?php echo $docente['id_docente']; ?> •
-                       Registrado: <?php echo date('d/m/Y', strtotime($docente['created_at'] ?? 'now')); ?></p>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Formulario -->
-        <form method="POST" action="" id="docenteForm">
-            <!-- Secciones del formulario -->
-            <div class="form-grid">
-                <!-- Información Personal -->
-                <div class="form-section personal">
-                    <h4>👤 Información Personal</h4>
-
-                    <div class="form-group">
-                        <label for="nombres">Nombres *</label>
-                        <input type="text"
-                               id="nombres"
-                               name="nombres"
-                               class="form-control"
-                               value="<?php echo htmlspecialchars($docente['nombres'] ?? ''); ?>"
-                               required
-                               placeholder="Ej: Juan Carlos">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="apellidos">Apellidos *</label>
-                        <input type="text"
-                               id="apellidos"
-                               name="apellidos"
-                               class="form-control"
-                               value="<?php echo htmlspecialchars($docente['apellidos'] ?? ''); ?>"
-                               required
-                               placeholder="Ej: García López">
-                    </div>
-                </div>
-
-                <!-- Información de Contacto -->
-                <div class="form-section contact">
-                    <h4>📧 Información de Contacto</h4>
-
-                    <div class="form-group">
-                        <label for="correo">Correo Electrónico</label>
-                        <input type="email"
-                               id="correo"
-                               name="correo"
-                               class="form-control"
-                               value="<?php echo htmlspecialchars($docente['correo'] ?? ''); ?>"
-                               placeholder="Ej: juan.garcia@instituto.edu">
-                        <small style="color: #666; font-size: 0.875rem;">
-                            📧 Formato: usuario@dominio.com
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="telefono">Teléfono</label>
-                        <input type="tel"
-                               id="telefono"
-                               name="telefono"
-                               class="form-control"
-                               value="<?php echo htmlspecialchars($docente['telefono'] ?? ''); ?>"
-                               placeholder="Ej: +51 987 654 321">
-                        <small style="color: #666; font-size: 0.875rem;">
-                            📞 Incluye código de país si es necesario
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Especialidad -->
-            <div class="form-section specialty">
-                <h4>🎓 Especialidad Académica</h4>
-
-                <div class="form-group">
-                    <label for="especialidad">Especialidades y Materias</label>
-                    <textarea id="especialidad"
-                              name="especialidad"
-                              class="form-control"
-                              rows="4"
-                              placeholder="Ej: Programación Web, Bases de Datos, Desarrollo de Software, JavaScript, PHP, MySQL..."
-                              style="resize: vertical;"><?php echo htmlspecialchars($docente['especialidad'] ?? ''); ?></textarea>
-                    <small style="color: #666; font-size: 0.875rem;">
-                        💡 Separa múltiples especialidades con comas. Ej: "Programación Web, Bases de Datos, JavaScript"
-                    </small>
-                </div>
-
-                <!-- Especialidades sugeridas -->
-                <div class="suggested-specialties">
-                    <label>🏷️ Especialidades sugeridas (haz clic para agregar):</label>
-                    <div class="specialty-tags" id="especialidadesSugeridas">
-                        <?php
-                        $especialidades_sugeridas = [
-                            'Programación Web', 'Bases de Datos', 'Desarrollo de Software',
-                            'JavaScript', 'PHP', 'Python', 'Java', 'C++', 'HTML/CSS',
-                            'React', 'Angular', 'Vue.js', 'Node.js', 'MySQL', 'PostgreSQL',
-                            'MongoDB', 'Análisis de Sistemas', 'Arquitectura de Software',
-                            'Redes de Computadoras', 'Ciberseguridad', 'Inteligencia Artificial',
-                            'Machine Learning', 'Diseño UI/UX', 'Metodologías Ágiles'
-                        ];
-
-                        foreach ($especialidades_sugeridas as $esp): ?>
-                        <button type="button"
-                                class="specialty-tag"
-                                onclick="agregarEspecialidad('<?php echo $esp; ?>')">
-                            <?php echo $esp; ?>
-                        </button>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botones de acción -->
-            <div class="form-actions">
-                <div class="required-note">
-                    <span style="color: #666; font-size: 0.875rem;">* Campos obligatorios</span>
-                </div>
-
-                <div class="action-buttons">
-                    <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="btn btn-cancel">
-                        ❌ Cancelar
-                    </a>
-
-                    <?php if ($isEditing): ?>
-                    <button type="submit" class="btn btn-warning">
-                        💾 Actualizar Docente
-                    </button>
-                    <?php else: ?>
-                    <button type="submit" class="btn btn-success">
-                        ➕ Crear Docente
-                    </button>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </form>
-    </div>
+<!-- Mensajes -->
+<?php if (isset($mensaje)): ?>
+<div class="message <?php echo $tipo_mensaje; ?>">
+<?php echo $mensaje; ?>
 </div>
-
+<?php endif; ?>
+<div class="table-container">
+<div class="table-header">
+<h3>👥 Gestión de Docentes</h3>
+<a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn btn-success">
+➕ Agregar Nuevo Docente
+</a>
+</div>
+<?php if (empty($docentes)): ?>
+<div class="empty-state">
+<div class="empty-state-icon">👨‍🏫</div>
+<h3>No hay docentes registrados</h3>
+<p>Comienza agregando tu primer docente al sistema.</p>
+<a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn" style="margin-top: 1rem;">
+➕ Agregar Primer Docente
+</a>
+</div>
+<?php else: ?>
+<!-- Barra de búsqueda y filtros -->
+<div class="search-filter-container">
+<div class="search-filter">
+<input type="text" id="searchDocente" placeholder="🔍 Buscar por nombre, correo o especialidad..."
+class="form-control">
+<select id="filterEspecialidad" class="form-control" style="width: 200px;">
+<option value="">📚 Todas las especialidades</option>
+</select>
+<select id="filterCarrera" class="form-control" style="width: 200px;">
+<option value="">🎓 Todas las carreras</option>
+<?php foreach ($carreras as $carrera): ?>
+<option value="<?php echo $carrera['id_carrera']; ?>">
+<?php echo htmlspecialchars($carrera['nombre']); ?>
+</option>
+<?php endforeach; ?>
+</select>
+<button onclick="clearFilters()" class="btn btn-small">🔄 Limpiar filtros</button>
+</div>
+</div>
+<div style="overflow-x: auto;">
+<table class="table" id="docentesTable">
+<thead>
+<tr>
+<th onclick="sortTable(0)">
+👤 Nombre Completo <span class="sort-indicator">↕️</span>
+</th>
+<th onclick="sortTable(1)">
+📧 Correo <span class="sort-indicator">↕️</span>
+</th>
+<th onclick="sortTable(2)">
+📞 Teléfono <span class="sort-indicator">↕️</span>
+</th>
+<th onclick="sortTable(3)">
+🎓 Especialidad <span class="sort-indicator">↕️</span>
+</th>
+<th onclick="sortTable(4)">
+🏫 Carrera <span class="sort-indicator">↕️</span>
+</th>
+<th style="width: 150px;">⚡ Acciones</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($docentes as $docente): ?>
+<tr data-docente='<?php echo json_encode($docente); ?>'>
+<td>
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<div class="docente-avatar">
+<?php echo strtoupper(substr($docente['nombres'], 0, 1) . substr($docente['apellidos'], 0, 1)); ?>
+</div>
+<div>
+<strong><?php echo htmlspecialchars($docente['nombres'] . ' ' . $docente['apellidos']); ?></strong>
+<br>
+<small style="color: #666;">ID: <?php echo $docente['id_docente']; ?></small>
+</div>
+</div>
+</td>
+<td>
+<?php if (!empty($docente['correo'])): ?>
+<a href="mailto:<?php echo htmlspecialchars($docente['correo']); ?>"
+style="color: #667eea; text-decoration: none;">
+<?php echo htmlspecialchars($docente['correo']); ?>
+</a>
+<?php else: ?>
+<span style="color: #999;">No especificado</span>
+<?php endif; ?>
+</td>
+<td>
+<?php if (!empty($docente['telefono'])): ?>
+<a href="tel:<?php echo htmlspecialchars($docente['telefono']); ?>"
+style="color: #667eea; text-decoration: none;">
+<?php echo htmlspecialchars($docente['telefono']); ?>
+</a>
+<?php else: ?>
+<span style="color: #999;">No especificado</span>
+<?php endif; ?>
+</td>
+<td>
+<?php if (!empty($docente['especialidad'])): ?>
+<div style="max-width: 300px;">
+<?php
+$especialidades = explode(',', $docente['especialidad']);
+foreach (array_slice($especialidades, 0, 2) as $esp):
+?>
+<span class="especialidad-badge">
+<?php echo htmlspecialchars(trim($esp)); ?>
+</span>
+<?php endforeach; ?>
+<?php if (count($especialidades) > 2): ?>
+<span style="color: #666; font-size: 0.875rem;">+<?php echo count($especialidades) - 2; ?> más</span>
+<?php endif; ?>
+</div>
+<?php else: ?>
+<span style="color: #999;">Sin especialidad</span>
+<?php endif; ?>
+</td>
+<td>
+<?php if (!empty($docente['id_carrera'])): ?>
+<?php
+$carreraNombre = '';
+foreach ($carreras as $carrera) {
+if ($carrera['id_carrera'] == $docente['id_carrera']) {
+$carreraNombre = $carrera['nombre'];
+break;
+}
+}
+?>
+<span class="carrera-badge">
+<?php echo htmlspecialchars($carreraNombre); ?>
+</span>
+<?php else: ?>
+<span style="color: #999;">Sin carrera asignada</span>
+<?php endif; ?>
+</td>
+<td>
+<div class="table-actions">
+<a href="<?php echo BASE_URL; ?>views/docente_form.php?edit=<?php echo $docente['id_docente']; ?>"
+class="btn btn-small btn-warning" title="Editar docente">
+✏️
+</a>
+<button onclick="confirmarEliminacion(<?php echo $docente['id_docente']; ?>, '<?php echo addslashes($docente['nombres'] . ' ' . $docente['apellidos']); ?>')"
+class="btn btn-small btn-danger" title="Eliminar docente">
+🗑️
+</button>
+</div>
+</td>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
+</div>
+<!-- Estadísticas del listado -->
+<div class="table-stats">
+<div>
+📊 <strong>Total: <?php echo count($docentes); ?> docentes</strong>
+</div>
+<div>
+<span id="filteredCount" style="color: #667eea;"></span>
+</div>
+</div>
+<?php endif; ?>
+</div>
+</div>
 <script>
-    // Agregar especialidad sugerida
-    function agregarEspecialidad(especialidad) {
-        const textarea = document.getElementById('especialidad');
-        const currentValue = textarea.value.trim();
-
-        // Verificar si ya existe
-        if (currentValue.toLowerCase().includes(especialidad.toLowerCase())) {
-            return;
-        }
-
-        // Agregar la especialidad
-        if (currentValue === '') {
-            textarea.value = especialidad;
-        } else {
-            textarea.value = currentValue + ', ' + especialidad;
-        }
-
-        // Animar el botón
-        event.target.style.transform = 'scale(0.95)';
-        event.target.style.background = 'rgba(72, 187, 120, 0.2)';
-        event.target.style.borderColor = '#48bb78';
-        event.target.style.color = '#22543d';
-
-        setTimeout(() => {
-            event.target.style.transform = 'scale(1)';
-        }, 150);
-
-        // Enfocar textarea
-        textarea.focus();
-    }
-
-    // Validación en tiempo real
-    document.getElementById('nombres').addEventListener('input', function() {
-        validateField(this);
-    });
-
-    document.getElementById('apellidos').addEventListener('input', function() {
-        validateField(this);
-    });
-
-    document.getElementById('correo').addEventListener('input', function() {
-        validateEmail(this);
-    });
-
-    function validateField(field) {
-        if (field.value.trim() === '') {
-            field.style.borderColor = '#f56565';
-            field.style.background = 'rgba(245, 101, 101, 0.05)';
-        } else {
-            field.style.borderColor = '#48bb78';
-            field.style.background = 'rgba(72, 187, 120, 0.05)';
-        }
-    }
-
-    function validateEmail(field) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (field.value !== '' && !emailRegex.test(field.value)) {
-            field.style.borderColor = '#f56565';
-            field.style.background = 'rgba(245, 101, 101, 0.05)';
-        } else {
-            field.style.borderColor = field.value === '' ? '#e2e8f0' : '#48bb78';
-            field.style.background = field.value === '' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(72, 187, 120, 0.05)';
-        }
-    }
-
-    // Validación del formulario antes de enviar
-    document.getElementById('docenteForm').addEventListener('submit', function(e) {
-        const nombres = document.getElementById('nombres').value.trim();
-        const apellidos = document.getElementById('apellidos').value.trim();
-
-        if (nombres === '' || apellidos === '') {
-            e.preventDefault();
-            alert('⚠️ Los campos Nombres y Apellidos son obligatorios.');
-            return false;
-        }
-
-        // Mostrar indicador de carga
-        const submitButton = e.target.querySelector('button[type="submit"]');
-        const originalText = submitButton.innerHTML;
-        submitButton.innerHTML = '<span class="loading"></span> Guardando...';
-        submitButton.disabled = true;
-
-        // Si hay error, restaurar botón
-        setTimeout(() => {
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-        }, 5000);
-    });
-
-    // Animar entrada del formulario
-    document.addEventListener('DOMContentLoaded', function() {
-        const formSections = document.querySelectorAll('.form-container > *');
-        formSections.forEach((section, index) => {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                section.style.transition = 'all 0.4s ease';
-                section.style.opacity = '1';
-                section.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
-    });
+// Variables globales
+let docentesData = <?php echo json_encode($docentes); ?>;
+let carrerasData = <?php echo json_encode($carreras); ?>;
+let currentSort = { column: -1, direction: 'asc' };
+// Búsqueda en tiempo real
+document.getElementById('searchDocente').addEventListener('input', filterTable);
+document.getElementById('filterEspecialidad').addEventListener('change', filterTable);
+document.getElementById('filterCarrera').addEventListener('change', filterTable);
+// Poblar filtro de especialidades
+function populateEspecialidadFilter() {
+const especialidadSelect = document.getElementById('filterEspecialidad');
+const especialidades = new Set();
+docentesData.forEach(docente => {
+if (docente.especialidad) {
+docente.especialidad.split(',').forEach(esp => {
+especialidades.add(esp.trim());
+});
+}
+});
+Array.from(especialidades).sort().forEach(esp => {
+const option = document.createElement('option');
+option.value = esp;
+option.textContent = esp;
+especialidadSelect.appendChild(option);
+});
+}
+// Filtrar tabla
+function filterTable() {
+const searchTerm = document.getElementById('searchDocente').value.toLowerCase();
+const especialidadFilter = document.getElementById('filterEspecialidad').value.toLowerCase();
+const carreraFilter = document.getElementById('filterCarrera').value;
+const rows = document.querySelectorAll('#docentesTable tbody tr');
+let visibleCount = 0;
+rows.forEach(row => {
+const docenteData = JSON.parse(row.getAttribute('data-docente'));
+const nombreCompleto = (docenteData.nombres + ' ' + docenteData.apellidos).toLowerCase();
+const correo = (docenteData.correo || '').toLowerCase();
+const telefono = (docenteData.telefono || '').toLowerCase();
+const especialidad = (docenteData.especialidad || '').toLowerCase();
+const idCarrera = docenteData.id_carrera ? docenteData.id_carrera.toString() : '';
+const matchesSearch = searchTerm === '' ||
+nombreCompleto.includes(searchTerm) ||
+correo.includes(searchTerm) ||
+telefono.includes(searchTerm) ||
+especialidad.includes(searchTerm);
+const matchesEspecialidad = especialidadFilter === '' ||
+especialidad.includes(especialidadFilter);
+const matchesCarrera = carreraFilter === '' ||
+idCarrera === carreraFilter;
+if (matchesSearch && matchesEspecialidad && matchesCarrera) {
+row.style.display = '';
+visibleCount++;
+} else {
+row.style.display = 'none';
+}
+});
+document.getElementById('filteredCount').textContent =
+visibleCount < docentesData.length ? `Mostrando ${visibleCount} de ${docentesData.length}` : '';
+}
+// Limpiar filtros
+function clearFilters() {
+document.getElementById('searchDocente').value = '';
+document.getElementById('filterEspecialidad').value = '';
+document.getElementById('filterCarrera').value = '';
+filterTable();
+}
+// Ordenar tabla
+function sortTable(columnIndex) {
+const table = document.getElementById('docentesTable');
+const tbody = table.tBodies[0];
+const rows = Array.from(tbody.querySelectorAll('tr'));
+// Determinar dirección de ordenamiento
+if (currentSort.column === columnIndex) {
+currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+} else {
+currentSort.column = columnIndex;
+currentSort.direction = 'asc';
+}
+// Ordenar filas
+rows.sort((a, b) => {
+const aData = JSON.parse(a.getAttribute('data-docente'));
+const bData = JSON.parse(b.getAttribute('data-docente'));
+let aValue, bValue;
+switch(columnIndex) {
+case 0: // Nombre
+aValue = aData.nombres + ' ' + aData.apellidos;
+bValue = bData.nombres + ' ' + bData.apellidos;
+break;
+case 1: // Correo
+aValue = aData.correo || '';
+bValue = bData.correo || '';
+break;
+case 2: // Teléfono
+aValue = aData.telefono || '';
+bValue = bData.telefono || '';
+break;
+case 3: // Especialidad
+aValue = aData.especialidad || '';
+bValue = bData.especialidad || '';
+break;
+case 4: // Carrera
+const carreraA = carrerasData.find(c => c.id_carrera == aData.id_carrera);
+const carreraB = carrerasData.find(c => c.id_carrera == bData.id_carrera);
+aValue = carreraA ? carreraA.nombre : '';
+bValue = carreraB ? carreraB.nombre : '';
+break;
+}
+const comparison = aValue.localeCompare(bValue);
+return currentSort.direction === 'asc' ? comparison : -comparison;
+});
+// Actualizar indicadores de ordenamiento
+document.querySelectorAll('.sort-indicator').forEach((indicator, index) => {
+if (index === columnIndex) {
+indicator.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+} else {
+indicator.textContent = '↕️';
+}
+});
+// Reordenar DOM
+rows.forEach(row => tbody.appendChild(row));
+}
+// Confirmar eliminación
+function confirmarEliminacion(id, nombre) {
+if (confirm(`¿Estás seguro de que deseas eliminar al docente "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
+window.location.href = `<?php echo BASE_URL; ?>views/docentes_list.php?delete=${id}`;
+}
+}
+// Inicializar al cargar
+document.addEventListener('DOMContentLoaded', function() {
+populateEspecialidadFilter();
+// Animar entrada de filas
+const rows = document.querySelectorAll('#docentesTable tbody tr');
+rows.forEach((row, index) => {
+row.style.opacity = '0';
+row.style.transform = 'translateY(20px)';
+setTimeout(() => {
+row.style.transition = 'all 0.3s ease';
+row.style.opacity = '1';
+row.style.transform = 'translateY(0)';
+}, index * 50);
+});
+});
 </script>
-
 <?php require_once __DIR__ . '/include/footer.php'; ?>
