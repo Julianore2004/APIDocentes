@@ -46,5 +46,14 @@ class Docente {
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+    // En tu DocenteController.php o DocenteModel.php
+public function listarDocentes() {
+    $sql = "SELECT d.*, c.nombre AS carrera_nombre, c.id_carrera
+            FROM docentes d
+            LEFT JOIN carreras c ON d.id_carrera = c.id_carrera";
+    $stmt = $this->db->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }
 ?>

@@ -27,5 +27,6 @@ class DocenteController {
     public function borrarDocente($id) {
         return $this->docenteModel->eliminarDocente($id);
     }
+    
 }
 ?>
