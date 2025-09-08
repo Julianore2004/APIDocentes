@@ -9,17 +9,25 @@ class Carrera {
     public function __construct() {
         $this->conexion = conectarDB();
     }
-
+public function getConexion() {
+        return $this->conexion;
+    }
     public function obtenerTodas() {
         $query = "SELECT * FROM carreras";
-        $result = $this->conexion->query($query);
-
-        $carreras = array();
-        while ($row = $result->fetch_assoc()) {
-            $carreras[] = $row;
+        $resultado = $this->conexion->query($query);
+        $carreras = [];
+        while ($fila = $resultado->fetch_assoc()) {
+            $carreras[] = $fila;
         }
-
         return $carreras;
+    }
+
+    public function obtenerCarreraPorId($id) {
+        $stmt = $this->conexion->prepare("SELECT * FROM carreras WHERE id_carrera = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        return $resultado->fetch_assoc();
     }
 }
 ?>

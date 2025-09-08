@@ -94,12 +94,13 @@
 </head>
 <body>
   <header class="app-header">
-    <h1 class="app-title">Instituto API Docentes</h1>
+    <h1 class="app-title">API Docentes 2025</h1>
     <nav class="app-nav">
       <a href="<?php echo BASE_URL; ?>views/dashboard.php" class="nav-link">Dashboard</a>
       <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="nav-link">Docentes</a>
-      <a href="<?php echo BASE_URL; ?>logout.php" class="btn-logout">Cerrar Sesión</a>
-      <a href="#" onclick="logout(); return false;" class="btn-logout">Logout (JS)</a>
+  
+     
+<a href="#" onclick="logout(); return false;" class="btn-logout"> Cerrar Sesión</a>
     </nav>
   </header>
 

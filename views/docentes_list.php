@@ -3,7 +3,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 require_once __DIR__ . '/../config/database.php';
-
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . 'views/login.php');
     exit();
@@ -28,12 +27,16 @@ $docenteController = new DocenteController();
 $docentes = $docenteController->listarDocentes();
 
 // Obtener lista de carreras
-require_once __DIR__ . '/../models/Carrera.php';
-$carreraModel = new Carrera();
-$carreras = $carreraModel->obtenerTodas();
+$carreras = $docenteController->obtenerCarreras();
+
+// Obtener lista de cursos
+$cursos = $docenteController->obtenerTodosLosCursos();
 
 require_once __DIR__ . '/include/header.php';
 ?>
+
+<!-- Incluir Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     /* Estilos globales */
@@ -42,13 +45,16 @@ require_once __DIR__ . '/include/header.php';
         margin: 0 auto;
         padding: 20px;
     }
+
     .fade-in {
         animation: fadeIn 0.5s ease-in-out;
     }
+
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
     }
+
     /* Mensajes */
     .message {
         padding: 1rem;
@@ -57,16 +63,19 @@ require_once __DIR__ . '/include/header.php';
         text-align: center;
         font-weight: 500;
     }
+
     .message.success {
         background-color: #d4edda;
         color: #155724;
         border: 1px solid #c3e6cb;
     }
+
     .message.error {
         background-color: #f8d7da;
         color: #721c24;
         border: 1px solid #f5c6cb;
     }
+
     /* Contenedor de la tabla */
     .table-container {
         background: white;
@@ -74,6 +83,7 @@ require_once __DIR__ . '/include/header.php';
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         overflow: hidden;
     }
+
     /* Encabezado de la tabla */
     .table-header {
         display: flex;
@@ -83,22 +93,26 @@ require_once __DIR__ . '/include/header.php';
         background: rgba(102, 126, 234, 0.05);
         border-bottom: 1px solid #e2e8f0;
     }
+
     .table-header h3 {
         color: #2d3748;
         margin: 0;
     }
+
     /* Barra de búsqueda y filtros */
     .search-filter-container {
         padding: 1.5rem;
         background: rgba(102, 126, 234, 0.05);
         border-bottom: 1px solid #e2e8f0;
     }
+
     .search-filter {
         display: flex;
         gap: 1rem;
         align-items: center;
         flex-wrap: wrap;
     }
+
     .form-control {
         padding: 0.75rem;
         border: 1px solid #e2e8f0;
@@ -107,25 +121,30 @@ require_once __DIR__ . '/include/header.php';
         flex: 1;
         min-width: 200px;
     }
+
     /* Tabla */
     .table {
         width: 100%;
         border-collapse: collapse;
     }
+
     .table th, .table td {
         padding: 1rem;
         text-align: left;
         border-bottom: 1px solid #e2e8f0;
     }
+
     .table th {
         background-color: #f7fafc;
         font-weight: 600;
         color: #2d3748;
         cursor: pointer;
     }
+
     .sort-indicator {
         margin-left: 0.5rem;
     }
+
     /* Avatar del docente */
     .docente-avatar {
         width: 40px;
@@ -138,16 +157,7 @@ require_once __DIR__ . '/include/header.php';
         color: white;
         font-weight: bold;
     }
-    /* Especialidades */
-    .especialidad-badge {
-        background: rgba(102, 126, 234, 0.1);
-        color: #667eea;
-        padding: 0.25rem 0.5rem;
-        border-radius: 5px;
-        font-size: 0.75rem;
-        margin: 0.25rem;
-        display: inline-block;
-    }
+
     /* Carrera */
     .carrera-badge {
         background: rgba(76, 175, 80, 0.1);
@@ -158,6 +168,18 @@ require_once __DIR__ . '/include/header.php';
         margin: 0.25rem;
         display: inline-block;
     }
+
+    /* Curso */
+    .curso-badge {
+        background: rgba(33, 150, 243, 0.1);
+        color: #2196f3;
+        padding: 0.25rem 0.5rem;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        margin: 0.25rem;
+        display: inline-block;
+    }
+
     /* Botones */
     .btn {
         display: inline-block;
@@ -169,40 +191,49 @@ require_once __DIR__ . '/include/header.php';
         border: none;
         cursor: pointer;
     }
+
     .btn-success {
         background-color: #48bb78;
         color: white;
     }
+
     .btn-warning {
         background-color: #fbbf24;
         color: white;
     }
+
     .btn-danger {
         background-color: #f56565;
         color: white;
     }
+
     .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
     .btn-small {
         padding: 0.375rem 0.75rem;
         font-size: 0.875rem;
     }
+
     .table-actions {
         display: flex;
         gap: 0.5rem;
     }
+
     /* Estado vacío */
     .empty-state {
         padding: 3rem;
         text-align: center;
         color: #666;
     }
+
     .empty-state-icon {
         font-size: 4rem;
         margin-bottom: 1rem;
     }
+
     /* Estadísticas del listado */
     .table-stats {
         padding: 1rem 2rem;
@@ -223,31 +254,31 @@ require_once __DIR__ . '/include/header.php';
         <?php echo $mensaje; ?>
     </div>
     <?php endif; ?>
+
     <div class="table-container">
         <div class="table-header">
             <h3>👥 Gestión de Docentes</h3>
             <a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn btn-success">
-                ➕ Agregar Nuevo Docente
+                <i class="fas fa-plus"></i> Agregar Nuevo Docente
             </a>
         </div>
+
         <?php if (empty($docentes)): ?>
         <div class="empty-state">
-            <div class="empty-state-icon">👨‍🏫</div>
+            <div class="empty-state-icon"><i class="fas fa-chalkboard-teacher"></i></div>
             <h3>No hay docentes registrados</h3>
             <p>Comienza agregando tu primer docente al sistema.</p>
             <a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn" style="margin-top: 1rem;">
-                ➕ Agregar Primer Docente
+                <i class="fas fa-plus"></i> Agregar Primer Docente
             </a>
         </div>
         <?php else: ?>
         <!-- Barra de búsqueda y filtros -->
         <div class="search-filter-container">
             <div class="search-filter">
-                <input type="text" id="searchDocente" placeholder="🔍 Buscar por nombre, correo o especialidad..."
+                <input type="text" id="searchDocente" placeholder="🔍 Buscar por nombre, correo o teléfono..."
                        class="form-control">
-                <select id="filterEspecialidad" class="form-control" style="width: 200px;">
-                    <option value="">📚 Todas las especialidades</option>
-                </select>
+
                 <select id="filterCarrera" class="form-control" style="width: 200px;">
                     <option value="">🎓 Todas las carreras</option>
                     <?php foreach ($carreras as $carrera): ?>
@@ -256,9 +287,22 @@ require_once __DIR__ . '/include/header.php';
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <button onclick="clearFilters()" class="btn btn-small">🔄 Limpiar filtros</button>
+
+                <select id="filterCurso" class="form-control" style="width: 200px;">
+                    <option value="">📚 Todos los cursos</option>
+                    <?php foreach ($cursos as $curso): ?>
+                        <option value="<?php echo $curso['id_curso']; ?>">
+                            <?php echo htmlspecialchars($curso['nombre']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <button onclick="clearFilters()" class="btn btn-small">
+                    <i class="fas fa-sync-alt"></i> Limpiar filtros
+                </button>
             </div>
         </div>
+
         <div style="overflow-x: auto;">
             <table class="table" id="docentesTable">
                 <thead>
@@ -273,10 +317,10 @@ require_once __DIR__ . '/include/header.php';
                             📞 Teléfono <span class="sort-indicator">↕️</span>
                         </th>
                         <th onclick="sortTable(3)">
-                            🎓 Especialidad <span class="sort-indicator">↕️</span>
+                            🎓 Carrera <span class="sort-indicator">↕️</span>
                         </th>
                         <th onclick="sortTable(4)">
-                            🏫 Carrera <span class="sort-indicator">↕️</span>
+                            📚 Cursos <span class="sort-indicator">↕️</span>
                         </th>
                         <th style="width: 150px;">⚡ Acciones</th>
                     </tr>
@@ -317,25 +361,6 @@ require_once __DIR__ . '/include/header.php';
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if (!empty($docente['especialidad'])): ?>
-                                <div style="max-width: 300px;">
-                                    <?php
-                                    $especialidades = explode(',', $docente['especialidad']);
-                                    foreach (array_slice($especialidades, 0, 2) as $esp):
-                                    ?>
-                                    <span class="especialidad-badge">
-                                        <?php echo htmlspecialchars(trim($esp)); ?>
-                                    </span>
-                                    <?php endforeach; ?>
-                                    <?php if (count($especialidades) > 2): ?>
-                                    <span style="color: #666; font-size: 0.875rem;">+<?php echo count($especialidades) - 2; ?> más</span>
-                                    <?php endif; ?>
-                                </div>
-                            <?php else: ?>
-                                <span style="color: #999;">Sin especialidad</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
                             <?php if (!empty($docente['id_carrera'])): ?>
                                 <?php
                                 $carreraNombre = '';
@@ -354,14 +379,30 @@ require_once __DIR__ . '/include/header.php';
                             <?php endif; ?>
                         </td>
                         <td>
+                            <?php if (!empty($docente['cursos'])): ?>
+                                <div style="max-width: 300px;">
+                                    <?php foreach (array_slice($docente['cursos'], 0, 3) as $curso): ?>
+                                        <span class="curso-badge">
+                                            <?php echo htmlspecialchars($curso['nombre']); ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                    <?php if (count($docente['cursos']) > 3): ?>
+                                        <span style="color: #666; font-size: 0.875rem;">+<?php echo count($docente['cursos']) - 3; ?> más</span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php else: ?>
+                                <span style="color: #999;">Sin cursos asignados</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
                             <div class="table-actions">
                                 <a href="<?php echo BASE_URL; ?>views/docente_form.php?edit=<?php echo $docente['id_docente']; ?>"
                                    class="btn btn-small btn-warning" title="Editar docente">
-                                    ✏️
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 <button onclick="confirmarEliminacion(<?php echo $docente['id_docente']; ?>, '<?php echo addslashes($docente['nombres'] . ' ' . $docente['apellidos']); ?>')"
                                         class="btn btn-small btn-danger" title="Eliminar docente">
-                                    🗑️
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </td>
@@ -370,6 +411,7 @@ require_once __DIR__ . '/include/header.php';
                 </tbody>
             </table>
         </div>
+
         <!-- Estadísticas del listado -->
         <div class="table-stats">
             <div>
@@ -387,39 +429,19 @@ require_once __DIR__ . '/include/header.php';
     // Variables globales
     let docentesData = <?php echo json_encode($docentes); ?>;
     let carrerasData = <?php echo json_encode($carreras); ?>;
+    let cursosData = <?php echo json_encode($cursos); ?>;
     let currentSort = { column: -1, direction: 'asc' };
 
     // Búsqueda en tiempo real
     document.getElementById('searchDocente').addEventListener('input', filterTable);
-    document.getElementById('filterEspecialidad').addEventListener('change', filterTable);
     document.getElementById('filterCarrera').addEventListener('change', filterTable);
-
-    // Poblar filtro de especialidades
-    function populateEspecialidadFilter() {
-        const especialidadSelect = document.getElementById('filterEspecialidad');
-        const especialidades = new Set();
-
-        docentesData.forEach(docente => {
-            if (docente.especialidad) {
-                docente.especialidad.split(',').forEach(esp => {
-                    especialidades.add(esp.trim());
-                });
-            }
-        });
-
-        Array.from(especialidades).sort().forEach(esp => {
-            const option = document.createElement('option');
-            option.value = esp;
-            option.textContent = esp;
-            especialidadSelect.appendChild(option);
-        });
-    }
+    document.getElementById('filterCurso').addEventListener('change', filterTable);
 
     // Filtrar tabla
     function filterTable() {
         const searchTerm = document.getElementById('searchDocente').value.toLowerCase();
-        const especialidadFilter = document.getElementById('filterEspecialidad').value.toLowerCase();
         const carreraFilter = document.getElementById('filterCarrera').value;
+        const cursoFilter = document.getElementById('filterCurso').value;
         const rows = document.querySelectorAll('#docentesTable tbody tr');
         let visibleCount = 0;
 
@@ -428,22 +450,21 @@ require_once __DIR__ . '/include/header.php';
             const nombreCompleto = (docenteData.nombres + ' ' + docenteData.apellidos).toLowerCase();
             const correo = (docenteData.correo || '').toLowerCase();
             const telefono = (docenteData.telefono || '').toLowerCase();
-            const especialidad = (docenteData.especialidad || '').toLowerCase();
             const idCarrera = docenteData.id_carrera ? docenteData.id_carrera.toString() : '';
+            const cursos = docenteData.cursos || [];
 
             const matchesSearch = searchTerm === '' ||
                 nombreCompleto.includes(searchTerm) ||
                 correo.includes(searchTerm) ||
-                telefono.includes(searchTerm) ||
-                especialidad.includes(searchTerm);
-
-            const matchesEspecialidad = especialidadFilter === '' ||
-                especialidad.includes(especialidadFilter);
+                telefono.includes(searchTerm);
 
             const matchesCarrera = carreraFilter === '' ||
                 idCarrera === carreraFilter;
 
-            if (matchesSearch && matchesEspecialidad && matchesCarrera) {
+            const matchesCurso = cursoFilter === '' ||
+                cursos.some(curso => curso.id_curso.toString() === cursoFilter);
+
+            if (matchesSearch && matchesCarrera && matchesCurso) {
                 row.style.display = '';
                 visibleCount++;
             } else {
@@ -458,8 +479,8 @@ require_once __DIR__ . '/include/header.php';
     // Limpiar filtros
     function clearFilters() {
         document.getElementById('searchDocente').value = '';
-        document.getElementById('filterEspecialidad').value = '';
         document.getElementById('filterCarrera').value = '';
+        document.getElementById('filterCurso').value = '';
         filterTable();
     }
 
@@ -481,7 +502,6 @@ require_once __DIR__ . '/include/header.php';
         rows.sort((a, b) => {
             const aData = JSON.parse(a.getAttribute('data-docente'));
             const bData = JSON.parse(b.getAttribute('data-docente'));
-
             let aValue, bValue;
 
             switch(columnIndex) {
@@ -497,15 +517,15 @@ require_once __DIR__ . '/include/header.php';
                     aValue = aData.telefono || '';
                     bValue = bData.telefono || '';
                     break;
-                case 3: // Especialidad
-                    aValue = aData.especialidad || '';
-                    bValue = bData.especialidad || '';
-                    break;
-                case 4: // Carrera
+                case 3: // Carrera
                     const carreraA = carrerasData.find(c => c.id_carrera == aData.id_carrera);
                     const carreraB = carrerasData.find(c => c.id_carrera == bData.id_carrera);
                     aValue = carreraA ? carreraA.nombre : '';
                     bValue = carreraB ? carreraB.nombre : '';
+                    break;
+                case 4: // Cursos
+                    aValue = aData.cursos ? aData.cursos.map(c => c.nombre).join(', ') : '';
+                    bValue = bData.cursos ? bData.cursos.map(c => c.nombre).join(', ') : '';
                     break;
             }
 
@@ -535,8 +555,6 @@ require_once __DIR__ . '/include/header.php';
 
     // Inicializar al cargar
     document.addEventListener('DOMContentLoaded', function() {
-        populateEspecialidadFilter();
-
         // Animar entrada de filas
         const rows = document.querySelectorAll('#docentesTable tbody tr');
         rows.forEach((row, index) => {

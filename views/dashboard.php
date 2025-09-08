@@ -3,24 +3,27 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 require_once __DIR__ . '/../config/database.php';
-
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . 'views/login.php');
     exit();
 }
 
 // Obtener estadísticas
-require_once __DIR__ . '/../models/Docente.php';
-$docenteModel = new Docente();
-$totalDocentes = count($docenteModel->obtenerDocentes());
+require_once __DIR__ . '/../controllers/DocenteController.php';
+$docenteController = new DocenteController();
+$totalDocentes = count($docenteController->listarDocentes());
+$totalCursos = count($docenteController->obtenerTodosLosCursos());
+$totalHorarios = $docenteController->getConexion()->query("SELECT COUNT(*) as total FROM horarios")->fetch_assoc()['total'] ?? 0;
+$totalCarreras = count($docenteController->obtenerCarreras());
 
-// Conexión para estadísticas adicionales
-$conexion = conectarDB();
-$totalCursos = $conexion->query("SELECT COUNT(*) as total FROM cursos")->fetch_assoc()['total'] ?? 0;
-$totalHorarios = $conexion->query("SELECT COUNT(*) as total FROM horarios")->fetch_assoc()['total'] ?? 0;
+// Obtener docentes recientes
+$docentesRecientes = array_slice($docenteController->listarDocentes(), -5);
 
 require_once __DIR__ . '/include/header.php';
 ?>
+
+<!-- Incluir Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     /* Estilos globales */
@@ -85,10 +88,16 @@ require_once __DIR__ . '/include/header.php';
         transform: translateY(-5px);
     }
 
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
         color: #667eea;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2d3748;
         margin-bottom: 0.5rem;
     }
 
@@ -115,8 +124,12 @@ require_once __DIR__ . '/include/header.php';
         flex-wrap: wrap;
     }
 
+    /* Botones */
     .btn {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
         padding: 0.75rem 1.5rem;
         border-radius: 5px;
         text-decoration: none;
@@ -136,6 +149,11 @@ require_once __DIR__ . '/include/header.php';
         color: white;
     }
 
+    .btn-primary {
+        background-color: #667eea;
+        color: white;
+    }
+
     .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -148,23 +166,27 @@ require_once __DIR__ . '/include/header.php';
         border-radius: 15px;
         border-left: 4px solid #667eea;
         margin-bottom: 2rem;
+       
     }
 
     .session-info h4 {
         color: #2d3748;
         margin-bottom: 1rem;
+       
     }
 
     .session-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
+        
     }
 
     .session-item strong {
         display: block;
         margin-bottom: 0.25rem;
         color: #4a5568;
+        
     }
 
     .role-badge {
@@ -212,12 +234,36 @@ require_once __DIR__ . '/include/header.php';
         font-size: 0.875rem;
     }
 
-    .especialidad-badge {
-        background: rgba(102, 126, 234, 0.1);
+    /* Badges */
+    .badge {
         padding: 0.25rem 0.5rem;
         border-radius: 5px;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
+        margin: 0.25rem;
         display: inline-block;
+    }
+
+    .carrera-badge {
+        background: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+    }
+
+    .curso-badge {
+        background: rgba(33, 150, 243, 0.1);
+        color: #2196f3;
+    }
+
+    /* Avatar del docente */
+    .docente-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
     }
 </style>
 
@@ -232,45 +278,53 @@ require_once __DIR__ . '/include/header.php';
         <!-- Estadísticas -->
         <div class="dashboard-stats">
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
                 <div class="stat-number"><?php echo $totalDocentes; ?></div>
-                <div class="stat-label">👨‍🏫 Docentes Registrados</div>
+                <div class="stat-label">Docentes Registrados</div>
             </div>
-
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
                 <div class="stat-number"><?php echo $totalCursos; ?></div>
-                <div class="stat-label">📚 Cursos Disponibles</div>
+                <div class="stat-label">Cursos Disponibles</div>
             </div>
-
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="stat-number"><?php echo $totalCarreras; ?></div>
+                <div class="stat-label">Carreras Disponibles</div>
+            </div>
+               <!-- 
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
                 <div class="stat-number"><?php echo $totalHorarios; ?></div>
-                <div class="stat-label">🕒 Horarios Programados</div>
-            </div>
-
+                <div class="stat-label">Horarios Programados</div>
+            </div> Acciones rápidas -->
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                 <div class="stat-number"><?php echo date('Y'); ?></div>
-                <div class="stat-label">📅 Año Académico</div>
+                <div class="stat-label">Año Académico</div>
             </div>
         </div>
 
         <!-- Acciones rápidas -->
         <div class="quick-actions">
-            <h3>🚀 Acciones Rápidas</h3>
+            <h3><i class="fas fa-rocket"></i> Acciones Rápidas</h3>
             <div class="btn-container">
-                <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="btn">
-                    👥 Ver Todos los Docentes
+                <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="btn btn-primary">
+                    <i class="fas fa-users"></i> Ver Todos los Docentes
                 </a>
                 <a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn btn-success">
-                    ➕ Agregar Nuevo Docente
+                    <i class="fas fa-user-plus"></i> Agregar Nuevo Docente
                 </a>
-                <a href="<?php echo BASE_URL; ?>views/reportes.php" class="btn btn-warning">
-                    📊 Generar Reportes
-                </a>
+                       <a href="<?= BASE_URL ?>views/usuarios_list.php" class="btn btn-primary">
+            <i class="fas fa-users-cog"></i> Gestionar Usuarios
+        </a>
+
             </div>
         </div>
 
         <!-- Información del usuario -->
         <div class="session-info">
-            <h4>ℹ️ Información de la Sesión</h4>
+            <h4><i class="fas fa-info-circle"></i> Información de la Sesión</h4>
             <div class="session-grid">
                 <div class="session-item">
                     <strong>ID:</strong> <?php echo $_SESSION['user_id']; ?>
@@ -281,26 +335,22 @@ require_once __DIR__ . '/include/header.php';
                 <div class="session-item">
                     <strong>Rol:</strong> <span class="role-badge"><?php echo strtoupper($_SESSION['rol'] ?? 'ADMIN'); ?></span>
                 </div>
-                <div class="session-item">
-                    <strong>Último acceso:</strong> <?php echo date('d/m/Y H:i'); ?>
-                </div>
+               
             </div>
         </div>
 
         <!-- Docentes recientes -->
-        <?php
-        $docentesRecientes = array_slice($docenteModel->obtenerDocentes(), -5);
-        if (!empty($docentesRecientes)):
-        ?>
+        <?php if (!empty($docentesRecientes)): ?>
         <div class="recent-docentes">
-            <h3>📋 Docentes Registrados Recientemente</h3>
+            <h3><i class="fas fa-user-clock"></i> Docentes Registrados Recientemente</h3>
             <div class="table-container">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Nombre Completo</th>
                             <th>Correo</th>
-                            <th>Especialidad</th>
+                            <th>Carrera</th>
+                            <th>Cursos</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -308,17 +358,66 @@ require_once __DIR__ . '/include/header.php';
                         <?php foreach (array_reverse($docentesRecientes) as $docente): ?>
                         <tr>
                             <td>
-                                <strong><?php echo htmlspecialchars($docente['nombres'] . ' ' . $docente['apellidos']); ?></strong>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div class="docente-avatar">
+                                        <?php echo strtoupper(substr($docente['nombres'], 0, 1) . substr($docente['apellidos'], 0, 1)); ?>
+                                    </div>
+                                    <div>
+                                        <strong><?php echo htmlspecialchars($docente['nombres'] . ' ' . $docente['apellidos']); ?></strong>
+                                    </div>
+                                </div>
                             </td>
-                            <td><?php echo htmlspecialchars($docente['correo'] ?? 'No especificado'); ?></td>
                             <td>
-                                <span class="especialidad-badge">
-                                    <?php echo htmlspecialchars(substr($docente['especialidad'] ?? 'Sin especialidad', 0, 30)); ?>...
-                                </span>
+                                <?php if (!empty($docente['correo'])): ?>
+                                    <a href="mailto:<?php echo htmlspecialchars($docente['correo']); ?>"
+                                       style="color: #667eea; text-decoration: none;">
+                                        <?php echo htmlspecialchars($docente['correo']); ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span style="color: #999;">No especificado</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($docente['id_carrera'])): ?>
+                                    <?php
+                                    $carreraNombre = '';
+                                    $carreras = $docenteController->obtenerCarreras();
+                                    foreach ($carreras as $carrera) {
+                                        if ($carrera['id_carrera'] == $docente['id_carrera']) {
+                                            $carreraNombre = $carrera['nombre'];
+                                            break;
+                                        }
+                                    }
+                                    ?>
+                                    <span class="badge carrera-badge">
+                                        <?php echo htmlspecialchars($carreraNombre); ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span style="color: #999;">Sin carrera asignada</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($docente['cursos'])): ?>
+                                    <div style="max-width: 250px;">
+                                        <?php foreach (array_slice($docente['cursos'], 0, 2) as $curso): ?>
+                                            <span class="badge curso-badge">
+                                                <?php echo htmlspecialchars($curso['nombre']); ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                        <?php if (count($docente['cursos']) > 2): ?>
+                                            <span style="color: #666; font-size: 0.875rem;">+<?php echo count($docente['cursos']) - 2; ?> más</span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <span style="color: #999;">Sin cursos asignados</span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <div class="table-actions">
-                                    <a href="<?php echo BASE_URL; ?>views/docente_form.php?edit=<?php echo $docente['id_docente']; ?>" class="btn btn-small btn-warning">✏️ Editar</a>
+                                    <a href="<?php echo BASE_URL; ?>views/docente_form.php?edit=<?php echo $docente['id_docente']; ?>"
+                                       class="btn btn-small btn-warning" title="Editar docente">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>

@@ -131,19 +131,15 @@ if (isset($_SESSION['user_id'])) {
 
     <form action="<?php echo BASE_URL; ?>public/index.php?action=login" method="POST">
       <div class="form-group">
-        <input type="text" name="username" class="form-input" placeholder="Usuario" value="admin" required>
+        <input type="text" name="username" class="form-input" placeholder="Usuario" value="" required>
       </div>
       <div class="form-group">
-        <input type="password" name="password" class="form-input" placeholder="Contraseña" value="admin123" required>
+        <input type="password" name="password" class="form-input" placeholder="Contraseña" value="" required>
       </div>
       <button type="submit" class="btn-submit">Ingresar</button>
     </form>
 
-    <div class="test-info">
-      <strong>Datos de prueba:</strong><br>
-      Usuario: <code>admin</code><br>
-      Contraseña: <code>admin123</code>
-    </div>
+    
   </div>
 </body>
 </html>
