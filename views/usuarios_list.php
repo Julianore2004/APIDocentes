@@ -22,7 +22,7 @@ if (isset($_GET['delete'])) {
         display: flex;
         justify-content: space-between;
         align-items: center;
-         padding: 20px;
+        padding: 20px;
     }
 
     .table-container {
@@ -86,24 +86,18 @@ if (isset($_GET['delete'])) {
         color: white;
     }
 
-    .btn-back {
-        background-color: #e2e8f0;
-        color: #4a5568;
-    }
-
-    .btn-back:hover {
-        background-color: #cbd5e0;
-    }
-
     .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .badge {
-        padding: 0.25rem 0.5rem;
+        padding: 0.35rem 0.6rem;
         border-radius: 5px;
         font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
     }
 
     .role-badge {
@@ -115,23 +109,22 @@ if (isset($_GET['delete'])) {
 <div class="container fade-in">
     <div class="dashboard-container">
         <div class="list-header">
-            <h2 style="color: #2d3748; margin: 0;">Lista de Usuarios</h2>
-           
-        </div>
-        <div style="margin-left: 1.5rem;">
+            <h2 style="color: #2d3748; margin: 0;">
+                <i class="fas fa-users"></i> Lista de Usuarios
+            </h2>
             <a href="<?= BASE_URL ?>views/usuario_form.php" class="btn btn-success">
-                <i class="fas fa-user-plus"></i> Agregar Nuevo Usuario
+                <i class="fas fa-user-plus"></i> Agregar Usuario
             </a>
         </div>
         <div class="table-container">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Nombre de Usuario</th>
-                        <th>Nombre Completo</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
+                        <th><i class="fas fa-hashtag"></i> ID</th>
+                        <th><i class="fas fa-user"></i> Usuario</th>
+                        <th><i class="fas fa-id-card"></i> Nombre Completo</th>
+                        <th><i class="fas fa-user-tag"></i> Rol</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,7 +135,7 @@ if (isset($_GET['delete'])) {
                             <td><?= $usuario['nombre_completo'] ?></td>
                             <td>
                                 <span class="badge role-badge">
-                                    <?= ucfirst($usuario['rol']) ?>
+                                    <i class="fas fa-shield-alt"></i> <?= ucfirst($usuario['rol']) ?>
                                 </span>
                             </td>
                             <td class="table-actions">
@@ -161,3 +154,4 @@ if (isset($_GET['delete'])) {
     </div>
 </div>
 
+<?php require_once __DIR__ . '/include/footer.php'; ?>

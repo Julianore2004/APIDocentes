@@ -1,115 +1,70 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Docentes</title>
-  <style>
-    /* Reset simple */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f6fa;
-      color: #333;
-    }
-
-    /* ===== HEADER ===== */
-    .app-header {
-      background: #ffffff;
-      border-bottom: 1px solid #e1e1e1;
-      padding: 1rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .app-title {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #222;
-    }
-
-    /* NAV */
-    .app-nav {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-    }
-
-    .nav-link {
-      text-decoration: none;
-      color: #444;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .nav-link:hover {
-      color: #007bff;
-    }
-
-    /* BOTÓN LOGOUT */
-    .btn-logout {
-      background: #dc3545;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: background 0.3s ease;
-    }
-
-    .btn-logout:hover {
-      background: #a71d2a;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      .app-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .app-nav {
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        margin-top: 0.8rem;
-        gap: 0.8rem;
-      }
-
-      .btn-logout {
-        width: 100%;
-        text-align: center;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Hoteles</title>
+    <!-- Estilos globales -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Roboto, sans-serif;
+            background: #f4f6f8;
+            color: #333;
+        }
+        header {
+            background: #6c8ea4;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            font-size: 1.4rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        nav {
+            display: flex;
+            gap: 15px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.3s ease;
+        }
+        nav a:hover {
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-  <header class="app-header">
-    <h1 class="app-title">API Docentes 2025</h1>
-    <nav class="app-nav">
-      <a href="<?php echo BASE_URL; ?>views/dashboard.php" class="nav-link">Dashboard</a>
-      <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="nav-link">Docentes</a>
-  
-     
-<a href="#" onclick="logout(); return false;" class="btn-logout"> Cerrar Sesión</a>
-    </nav>
-  </header>
+    <header>
+        <h1><i class="fas fa-hotel"></i> API Hoteles 2025</h1>
+        <nav>
+            <a href="<?php echo BASE_URL; ?>views/dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="<?php echo BASE_URL; ?>views/hoteles_list.php"><i class="fas fa-building"></i> Hoteles</a>
+            <a href="#" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </nav>
+    </header>
 
-  <script>
-    function logout() {
-      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-          window.location.href = '<?php echo BASE_URL; ?>logout.php';
-      }
-    }
-  </script>
-</body>
-</html>
+    <script>
+        function logout() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                window.location.href = '<?php echo BASE_URL; ?>logout.php';
+            }
+        }
+    </script>
