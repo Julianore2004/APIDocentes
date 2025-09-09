@@ -1,13 +1,13 @@
 <?php
 // Configuración de la base de datos
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'api_hotel');
+define('DB_NAME', 'instituto_api_docentes');
 define('DB_USER', 'root');
 define('DB_PASSWORD', '');
 define('DB_CHARSET', 'utf8mb4');
 
 // Configuración de rutas base
-define('BASE_URL', 'http://localhost/APIhotel/');
+define('BASE_URL', 'http://localhost/APIDOCENTES/');
 
 define('BASE_PATH', __DIR__ . '/../');
 

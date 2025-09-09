@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         max-width: 600px;
         margin: 0 auto;
+        
         margin-top: 20px;
     }
 
@@ -43,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
+        
     }
 
     .form-group {
@@ -114,30 +116,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="dashboard-container">
         <div class="form-container">
             <div class="form-header">
-                <h2 style="color: #2d3748; margin: 0;">
-                    <i class="fas fa-user-shield"></i> <?= ucfirst($action) ?> Usuario
-                </h2>
+                <h2 style="color: #2d3748; margin: 0;"><?= ucfirst($action) ?> Usuario</h2>
             </div>
             <form method="POST">
                 <?php if ($action === "actualizar" && $usuario): ?>
                     <input type="hidden" name="id_usuario" value="<?= $usuario['id_usuario'] ?>">
                 <?php endif; ?>
                 <div class="form-group">
-                    <label for="username"><i class="fas fa-user"></i> Nombre de Usuario:</label>
+                    <label for="username">Nombre de Usuario:</label>
                     <input type="text" id="username" name="username" class="form-input" value="<?= $usuario ? $usuario['username'] : '' ?>" required>
                 </div>
                 <?php if ($action === "registrar"): ?>
                     <div class="form-group">
-                        <label for="password"><i class="fas fa-lock"></i> Contraseña:</label>
+                        <label for="password">Contraseña:</label>
                         <input type="password" id="password" name="password" class="form-input" required>
                     </div>
                 <?php endif; ?>
                 <div class="form-group">
-                    <label for="nombre_completo"><i class="fas fa-id-card"></i> Nombre Completo:</label>
+                    <label for="nombre_completo">Nombre Completo:</label>
                     <input type="text" id="nombre_completo" name="nombre_completo" class="form-input" value="<?= $usuario ? $usuario['nombre_completo'] : '' ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="rol"><i class="fas fa-user-tag"></i> Rol:</label>
+                    <label for="rol">Rol:</label>
                     <select id="rol" name="rol" class="form-input" required>
                         <option value="admin" <?= ($usuario && $usuario['rol'] === 'admin') ? 'selected' : '' ?>>Administrador</option>
                     </select>
@@ -154,5 +154,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-
-<?php require_once __DIR__ . '/include/footer.php'; ?>
