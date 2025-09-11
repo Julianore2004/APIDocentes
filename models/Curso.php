@@ -26,4 +26,4 @@ class Curso {
         return $cursos;
     }
 }
-?>
+

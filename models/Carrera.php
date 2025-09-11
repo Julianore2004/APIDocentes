@@ -30,5 +30,5 @@ public function getConexion() {
         return $resultado->fetch_assoc();
     }
 }
-?>
+
 

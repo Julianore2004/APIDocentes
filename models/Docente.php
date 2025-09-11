@@ -84,4 +84,3 @@ public function getConexion() {
         return true;
     }
 }
-?>
