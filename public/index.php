@@ -60,15 +60,4 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         safe_redirect(BASE_URL . 'views/login.php?error=1');
     }
     
-} else {
-    // No es login, redirigir según el estado de autenticación
-    $authController = new AuthController();
-    
-    if ($authController->isAuthenticated()) {
-        error_log("User already authenticated - redirecting to dashboard");
-        safe_redirect(BASE_URL . 'views/dashboard.php');
-    } else {
-        error_log("User not authenticated - redirecting to login");
-        safe_redirect(BASE_URL . 'views/login.php');
-    }
 }
