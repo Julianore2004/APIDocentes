@@ -1,11 +1,7 @@
 <?php
-// views/usuario_form.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 session_start();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/UsuarioController.php';
-require_once __DIR__ . '/include/header.php';
 
 $usuarioController = new UsuarioController();
 $usuario = null;
@@ -26,6 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 ?>
+
+<?php require_once __DIR__ . '/include/header.php'; ?>
+
+<!-- A partir de aquí tu formulario HTML -->
+
 
 <style>
     .form-container {

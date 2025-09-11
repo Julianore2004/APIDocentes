@@ -1,21 +1,23 @@
 <?php
-// views/usuarios_list.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 session_start();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/UsuarioController.php';
-require_once __DIR__ . '/include/header.php';
 
 $usuarioController = new UsuarioController();
-$usuarios = $usuarioController->listarUsuarios();
 
 if (isset($_GET['delete'])) {
     $usuarioController->eliminar($_GET['delete']);
     header('Location: ' . BASE_URL . 'views/usuarios_list.php');
     exit();
 }
+
+$usuarios = $usuarioController->listarUsuarios();
 ?>
+
+<?php require_once __DIR__ . '/include/header.php'; ?>
+
+<!-- A partir de aquí tu HTML de la lista de usuarios -->
+
 
 <style>
     .list-header {
