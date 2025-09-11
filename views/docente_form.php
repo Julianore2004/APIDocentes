@@ -483,7 +483,10 @@ require_once __DIR__ . '/include/header.php';
                     <div class="form-group">
                         <label for="apellidos">Apellidos *</label>
                         <input type="text"
-                                value="<?php echo htmlspecialchars($docente['apellidos'] ?? ''); ?>"
+                               id="apellidos"
+                               name="apellidos"
+                               class="form-control"
+                               value="<?php echo htmlspecialchars($docente['apellidos'] ?? ''); ?>"
                                required
                                placeholder="Ej: García López">
                     </div>
@@ -721,4 +724,3 @@ require_once __DIR__ . '/include/header.php';
 </script>
 
 <?php require_once __DIR__ . '/include/footer.php'; ?>
-                
