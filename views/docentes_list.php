@@ -378,22 +378,23 @@ require_once __DIR__ . '/include/header.php';
                                 <span style="color: #999;">Sin carrera asignada</span>
                             <?php endif; ?>
                         </td>
-                        <td>
-                            <?php if (!empty($docente['cursos'])): ?>
-                                <div style="max-width: 300px;">
-                                    <?php foreach (array_slice($docente['cursos'], 0, 3) as $curso): ?>
-                                        <span class="curso-badge">
-                                            <?php echo htmlspecialchars($curso['nombre']); ?>
-                                        </span>
-                                    <?php endforeach; ?>
-                                    <?php if (count($docente['cursos']) > 3): ?>
-                                        <span style="color: #666; font-size: 0.875rem;">+<?php echo count($docente['cursos']) - 3; ?> más</span>
-                                    <?php endif; ?>
-                                </div>
-                            <?php else: ?>
-                                <span style="color: #999;">Sin cursos asignados</span>
-                            <?php endif; ?>
-                        </td>
+                       <td>
+    <?php if (!empty($docente['cursos'])): ?>
+        <div style="max-width: 300px;">
+            <?php foreach (array_slice($docente['cursos'], 0, 3) as $curso): ?>
+                <span class="curso-badge">
+                    <?php echo htmlspecialchars($curso['nombre']); ?>
+                </span>
+            <?php endforeach; ?>
+            <?php if (count($docente['cursos']) > 3): ?>
+                <span style="color: #666; font-size: 0.875rem;">+<?php echo count($docente['cursos']) - 3; ?> más</span>
+            <?php endif; ?>
+        </div>
+    <?php else: ?>
+        <span style="color: #999;">Sin cursos asignados</span>
+    <?php endif; ?>
+</td>
+
                         <td>
                             <div class="table-actions">
                                 <a href="<?php echo BASE_URL; ?>views/docente_form.php?edit=<?php echo $docente['id_docente']; ?>"

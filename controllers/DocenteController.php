@@ -30,22 +30,23 @@ class DocenteController {
     }
 
     public function crearDocente($nombres, $apellidos, $correo, $telefono, $id_carrera, $cursos) {
-        $id_docente = $this->docenteModel->guardarDocente($nombres, $apellidos, $correo, $telefono, $id_carrera);
-        if ($id_docente) {
-            $this->docenteModel->asignarCursosADocente($id_docente, $cursos);
-            return true;
-        }
-        return false;
+    $id_docente = $this->docenteModel->guardarDocente($nombres, $apellidos, $correo, $telefono, $id_carrera);
+    if ($id_docente) {
+        $this->docenteModel->asignarCursosADocente($id_docente, $cursos);
+        return $id_docente;
     }
+    return false;
+}
 
-    public function editarDocente($id, $nombres, $apellidos, $correo, $telefono, $id_carrera, $cursos) {
-        $resultado = $this->docenteModel->actualizarDocente($id, $nombres, $apellidos, $correo, $telefono, $id_carrera);
-        if ($resultado) {
-            $this->docenteModel->asignarCursosADocente($id, $cursos);
-            return true;
-        }
-        return false;
+public function editarDocente($id, $nombres, $apellidos, $correo, $telefono, $id_carrera, $cursos) {
+    $resultado = $this->docenteModel->actualizarDocente($id, $nombres, $apellidos, $correo, $telefono, $id_carrera);
+    if ($resultado) {
+        $this->docenteModel->asignarCursosADocente($id, $cursos);
+        return true;
     }
+    return false;
+}
+
 
     public function borrarDocente($id) {
         return $this->docenteModel->eliminarDocente($id);

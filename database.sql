@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 08-09-2025 a las 04:16:52
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Servidor: localhost
+-- Tiempo de generación: 18-09-2025 a las 15:09:04
+-- Versión del servidor: 10.4.28-MariaDB
+-- Versión de PHP: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -65,28 +65,7 @@ CREATE TABLE `cursos` (
 -- Volcado de datos para la tabla `cursos`
 --
 
-INSERT INTO `cursos` (`id_curso`, `nombre`, `tipo`, `id_carrera`, `created_at`, `updated_at`) VALUES
-(1, 'Redes e Internet', 'Teoría', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(2, 'Redes e Internet', 'Práctica', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(3, 'Arquitectura de Computadoras', 'Teoría', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(4, 'Arquitectura de Computadoras', 'Práctica', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(5, 'Anatomía y Fisiología', 'Teoría', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(6, 'Enfermería Básica', 'Teoría', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(7, 'Enfermería Básica', 'Práctica', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(8, 'Primeros Auxilios', 'Teoría', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(9, 'Primeros Auxilios', 'Práctica', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(10, 'Procesos de Producción Alimentaria', 'Teoría', 2, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(11, 'Procesos de Producción Alimentaria', 'Práctica', 2, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(12, 'Control de Calidad', 'Teoría', 2, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(13, 'Control de Calidad', 'Práctica', 2, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(14, 'Agronomía', 'Teoría', 3, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(15, 'Agronomía', 'Práctica', 3, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(16, 'Manejo de Suelos', 'Teoría', 3, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(17, 'Manejo de Suelos', 'Práctica', 3, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(18, 'Mecánica Automotriz', 'Teoría', 4, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(19, 'Mecánica Automotriz', 'Práctica', 4, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(20, 'Electrónica Automotriz', 'Teoría', 4, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(21, 'Electrónica Automotriz', 'Práctica', 4, '2025-09-05 14:07:30', '2025-09-05 14:07:30');
+
 
 -- --------------------------------------------------------
 
@@ -110,26 +89,6 @@ CREATE TABLE `docentes` (
 -- Volcado de datos para la tabla `docentes`
 --
 
-INSERT INTO `docentes` (`id_docente`, `nombres`, `apellidos`, `correo`, `telefono`, `especialidad`, `id_carrera`, `created_at`, `updated_at`) VALUES
-(1, 'Kevin Vlaes', 'Bando Gomez', '', '', 'Redes e Internet, Diagramación digital, Gestión de sitios web, JavaScript, PHP, Python', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(2, 'Jorge Luis', 'Jara Diaz', NULL, NULL, 'Arquitectura de Computadoras, Análisis y diseño de sistemas, Administración BD, Marketing digital', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(3, 'Christian', 'Alegria Ñaccha', NULL, NULL, 'Introducción BD, Diseño de interfaces, Programación móvil', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(4, 'Juan Carlos', 'Torres Lozano', NULL, NULL, 'Fundamentos de programación, Pruebas de software', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(5, 'Andy', 'Cconovilca Ayala', NULL, NULL, 'Aplicaciones en internet', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(6, 'Anibal', 'Yucra Curo', NULL, NULL, 'Programación web, Diseño de soluciones web, Inglés', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(7, 'Bill Ulises', 'Ochoa Medina', '3123sdc@gmail.com', '12341553', 'Oportunidades de negocios, Desarrollo de Software, Análisis de Sistemas, Arquitectura de Software, Redes de Computadoras', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(8, 'Alfonso Alvaro', 'Moreno Marquez', '', '', 'Comunicación oral, Solución de problemas, Desarrollo de Software, Node.js, Redes de Computadoras, Inteligencia Artificial, Machine Learning', 5, '2025-09-04 13:28:39', '2025-09-05 14:14:40'),
-(10, 'María Elena', 'González Pérez', '', '', 'Anatomía y fisiología, Enfermería básica, Primeros auxilios', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(11, 'Carlos Alberto', 'Mendoza Rojas', '', '', 'Microbiología, Farmacología, Cuidados intensivos', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(12, 'Ana Sofía', 'Ramírez López', '', '', 'Nutrición y dietética, Salud pública', 1, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(13, 'Luis Miguel', 'Torres Sánchez', '', '', 'Procesos de producción alimentaria, Control de calidad', 2, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(14, 'Laura Andrea', 'Díaz Martínez', '', '', 'Tecnología de alimentos, Conservación de alimentos', 2, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(15, 'Pedro Antonio', 'Gómez Castro', '', '', 'Agronomía, Manejo de suelos, Cultivos', 3, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(16, 'Marta Cecilia', 'Vargas Silva', '', '', 'Zootecnia, Producción animal, Sanidad animal', 3, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(17, 'Ricardo Jesús', 'Flores Mendoza', '', '', 'Mecánica automotriz, Electrónica automotriz, Diagnóstico de fallas', 4, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(18, 'Javier Eduardo', 'Pérez García', '', '', 'Sistemas de inyección, Mantenimiento preventivo', 4, '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(19, 'wefx', 'sxxa', '3123sdc@gmail.com', '123123', 'Desarrollo de Software, Análisis de Sistemas, Redes de Computadoras', NULL, '2025-09-05 14:24:23', '2025-09-05 14:24:23'),
-(20, 'Alfonso Alvaro', 'wfewfwef', '3123sdc@gmail.com', '123123', 'Desarrollo de Software, Análisis de Sistemas, Arquitectura de Software', NULL, '2025-09-05 14:53:37', '2025-09-05 14:54:17');
 
 -- --------------------------------------------------------
 
@@ -141,6 +100,12 @@ CREATE TABLE `docente_curso` (
   `id_docente` int(11) NOT NULL,
   `id_curso` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `docente_curso`
+--
+
+
 
 -- --------------------------------------------------------
 
@@ -163,28 +128,6 @@ CREATE TABLE `horarios` (
 -- Volcado de datos para la tabla `horarios`
 --
 
-INSERT INTO `horarios` (`id_horario`, `id_docente`, `id_curso`, `dia`, `hora_inicio`, `hora_fin`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'Lunes', '08:00:00', '08:45:00', '2025-09-04 13:28:39', '2025-09-04 13:28:39'),
-(2, 1, 2, 'Lunes', '08:45:00', '09:30:00', '2025-09-04 13:28:39', '2025-09-04 13:28:39'),
-(3, 2, 3, 'Lunes', '08:00:00', '08:45:00', '2025-09-04 13:28:39', '2025-09-04 13:28:39'),
-(4, 2, 4, 'Lunes', '08:45:00', '09:30:00', '2025-09-04 13:28:39', '2025-09-04 13:28:39'),
-(5, 10, 5, 'Lunes', '08:00:00', '09:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(6, 10, 6, 'Lunes', '09:30:00', '11:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(7, 11, 7, 'Martes', '08:00:00', '09:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(8, 11, 8, 'Martes', '09:30:00', '11:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(9, 13, 10, 'Miércoles', '08:00:00', '09:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(10, 13, 11, 'Miércoles', '09:30:00', '11:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(11, 14, 12, 'Jueves', '08:00:00', '09:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(12, 14, 13, 'Jueves', '09:30:00', '11:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(13, 15, 14, 'Viernes', '08:00:00', '09:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(14, 15, 15, 'Viernes', '09:30:00', '11:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(15, 16, 16, 'Lunes', '13:00:00', '14:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(16, 16, 17, 'Lunes', '14:30:00', '16:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(17, 17, 18, 'Martes', '13:00:00', '14:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(18, 17, 19, 'Martes', '14:30:00', '16:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(19, 18, 20, 'Miércoles', '13:00:00', '14:30:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30'),
-(20, 18, 21, 'Miércoles', '14:30:00', '16:00:00', '2025-09-05 14:07:30', '2025-09-05 14:07:30');
-
 -- --------------------------------------------------------
 
 --
@@ -206,11 +149,42 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `username`, `password`, `nombre_completo`, `rol`, `created_at`, `updated_at`) VALUES
-(4, 'admin', '$2y$10$a4qsOmIrUcXN4ptudcU57uOQ7li/aLuuuRedYHOb1YoBnoRQsWgPi', 'Administrador General', 'admin', '2025-09-04 16:18:50', '2025-09-04 16:27:16');
+(4, 'admin', '$2y$10$a4qsOmIrUcXN4ptudcU57uOQ7li/aLuuuRedYHOb1YoBnoRQsWgPi', 'Administrador General', 'admin', '2025-09-04 16:18:50', '2025-09-04 16:27:16'),
+(5, 'julian', '$2y$10$c4ciki.RcE21wQp3VQp7eOIgSHU6hpTMNhNEUkpDYWF8axQJdfq9.', 'julian', 'admin', '2025-09-08 13:35:39', '2025-09-08 13:35:39');
 
 --
--- Índices para tablas volcadas
+-- Índices para tablas API
 --
+-- Tabla de clientes que consumen la API
+CREATE TABLE Client_API (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    RUC VARCHAR(20) NOT NULL,
+    Razon_Social VARCHAR(150) NOT NULL,
+    Telefono VARCHAR(20),
+    Correo VARCHAR(100),
+    Fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    estado TINYINT DEFAULT 1
+);
+
+-- Tabla de tokens asociados a cada cliente
+CREATE TABLE Tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_client_API INT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    fecha_reg DATETIME DEFAULT CURRENT_TIMESTAMP,
+    estado TINYINT DEFAULT 1,
+    FOREIGN KEY (id_client_API) REFERENCES Client_API(id)
+);
+
+-- Tabla para contar peticiones realizadas por token
+CREATE TABLE Count_request (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_token INT NOT NULL,
+    Contador INT DEFAULT 0,
+    Tipo VARCHAR(50),
+    mes VARCHAR(20),
+    FOREIGN KEY (id_token) REFERENCES Tokens(id)
+);
 
 --
 -- Indices de la tabla `carreras`
@@ -274,7 +248,7 @@ ALTER TABLE `cursos`
 -- AUTO_INCREMENT de la tabla `docentes`
 --
 ALTER TABLE `docentes`
-  MODIFY `id_docente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id_docente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `horarios`
@@ -286,7 +260,7 @@ ALTER TABLE `horarios`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Restricciones para tablas volcadas

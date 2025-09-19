@@ -70,17 +70,20 @@ public function getConexion() {
     }
 
     public function asignarCursosADocente($id_docente, $cursos) {
-        // Eliminar cursos anteriores
-        $stmt = $this->conexion->prepare("DELETE FROM docente_curso WHERE id_docente = ?");
-        $stmt->bind_param("i", $id_docente);
-        $stmt->execute();
+    // Eliminar cursos anteriores
+    $stmt = $this->conexion->prepare("DELETE FROM docente_curso WHERE id_docente = ?");
+    $stmt->bind_param("i", $id_docente);
+    $stmt->execute();
 
-        // Asignar nuevos cursos
+    // Asignar nuevos cursos
+    if (!empty($cursos)) {
         foreach ($cursos as $id_curso) {
             $stmt = $this->conexion->prepare("INSERT INTO docente_curso (id_docente, id_curso) VALUES (?, ?)");
             $stmt->bind_param("ii", $id_docente, $id_curso);
             $stmt->execute();
         }
-        return true;
     }
+    return true;
+}
+
 }
