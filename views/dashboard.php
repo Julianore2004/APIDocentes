@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . 'views/login.php');
     exit();
 }
-
 // Obtener estadísticas
 require_once __DIR__ . '/../controllers/DocenteController.php';
 $docenteController = new DocenteController();
@@ -15,10 +14,8 @@ $totalDocentes = count($docenteController->listarDocentes());
 $totalCursos = count($docenteController->obtenerTodosLosCursos());
 $totalHorarios = $docenteController->getConexion()->query("SELECT COUNT(*) as total FROM horarios")->fetch_assoc()['total'] ?? 0;
 $totalCarreras = count($docenteController->obtenerCarreras());
-
 // Obtener docentes recientes
 $docentesRecientes = array_slice($docenteController->listarDocentes(), -5);
-
 require_once __DIR__ . '/include/header.php';
 ?>
 
@@ -266,7 +263,6 @@ require_once __DIR__ . '/include/header.php';
         font-weight: bold;
     }
 </style>
-
 <div class="container fade-in">
     <div class="dashboard-container">
         <!-- Bienvenida -->
@@ -292,12 +288,6 @@ require_once __DIR__ . '/include/header.php';
                 <div class="stat-number"><?php echo $totalCarreras; ?></div>
                 <div class="stat-label">Carreras Disponibles</div>
             </div>
-               <!-- 
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                <div class="stat-number"><?php echo $totalHorarios; ?></div>
-                <div class="stat-label">Horarios Programados</div>
-            </div> Acciones rápidas -->
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                 <div class="stat-number"><?php echo date('Y'); ?></div>
@@ -315,10 +305,12 @@ require_once __DIR__ . '/include/header.php';
                 <a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn btn-success">
                     <i class="fas fa-user-plus"></i> Agregar Nuevo Docente
                 </a>
-                       <a href="<?= BASE_URL ?>views/usuarios_list.php" class="btn btn-primary">
-            <i class="fas fa-users-cog"></i> Gestionar Usuarios
-        </a>
-
+                <a href="<?php echo BASE_URL; ?>views/usuarios_list.php" class="btn btn-primary">
+                    <i class="fas fa-users-cog"></i> Gestionar Usuarios
+                </a>
+                <a href="<?php echo BASE_URL; ?>views/clientes_list.php" class="btn btn-primary">
+                    <i class="fas fa-users"></i> Gestionar Clientes API
+                </a>
             </div>
         </div>
 
@@ -335,7 +327,6 @@ require_once __DIR__ . '/include/header.php';
                 <div class="session-item">
                     <strong>Rol:</strong> <span class="role-badge"><?php echo strtoupper($_SESSION['rol'] ?? 'ADMIN'); ?></span>
                 </div>
-               
             </div>
         </div>
 
@@ -389,7 +380,7 @@ require_once __DIR__ . '/include/header.php';
                                         }
                                     }
                                     ?>
-                                    <span class="badge carrera-badge">
+                                    <span class="carrera-badge">
                                         <?php echo htmlspecialchars($carreraNombre); ?>
                                     </span>
                                 <?php else: ?>
@@ -400,7 +391,7 @@ require_once __DIR__ . '/include/header.php';
                                 <?php if (!empty($docente['cursos'])): ?>
                                     <div style="max-width: 250px;">
                                         <?php foreach (array_slice($docente['cursos'], 0, 2) as $curso): ?>
-                                            <span class="badge curso-badge">
+                                            <span class="curso-badge">
                                                 <?php echo htmlspecialchars($curso['nombre']); ?>
                                             </span>
                                         <?php endforeach; ?>

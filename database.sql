@@ -156,35 +156,35 @@ INSERT INTO `usuarios` (`id_usuario`, `username`, `password`, `nombre_completo`,
 -- Índices para tablas API
 --
 -- Tabla de clientes que consumen la API
-CREATE TABLE Client_API (
+CREATE TABLE client_api (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    RUC VARCHAR(20) NOT NULL,
-    Razon_Social VARCHAR(150) NOT NULL,
-    Telefono VARCHAR(20),
-    Correo VARCHAR(100),
-    Fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ruc VARCHAR(20) NOT NULL,
+    razon_social VARCHAR(150) NOT NULL,
+    telefono VARCHAR(20),
+    correo VARCHAR(100),
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
     estado TINYINT DEFAULT 1
 );
 
 -- Tabla de tokens asociados a cada cliente
-CREATE TABLE Tokens (
+CREATE TABLE tokens_api (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_client_API INT NOT NULL,
+    id_client_api INT NOT NULL,
     token VARCHAR(255) NOT NULL,
-    fecha_reg DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
     estado TINYINT DEFAULT 1,
-    FOREIGN KEY (id_client_API) REFERENCES Client_API(id)
+    FOREIGN KEY (id_client_api) REFERENCES client_api(id)
 );
 
 -- Tabla para contar peticiones realizadas por token
-CREATE TABLE Count_request (
+CREATE TABLE count_request (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_token INT NOT NULL,
-    Contador INT DEFAULT 0,
-    Tipo VARCHAR(50),
-    mes VARCHAR(20),
-    FOREIGN KEY (id_token) REFERENCES Tokens(id)
+    tipo VARCHAR(50),
+    fecha DATE,
+    FOREIGN KEY (id_token) REFERENCES tokens_api(id)
 );
+
 
 --
 -- Indices de la tabla `carreras`
