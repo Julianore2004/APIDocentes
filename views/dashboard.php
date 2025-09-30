@@ -295,24 +295,28 @@ require_once __DIR__ . '/include/header.php';
             </div>
         </div>
 
-        <!-- Acciones rápidas -->
-        <div class="quick-actions">
-            <h3><i class="fas fa-rocket"></i> Acciones Rápidas</h3>
-            <div class="btn-container">
-                <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="btn btn-primary">
-                    <i class="fas fa-users"></i> Ver Todos los Docentes
-                </a>
-                <a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn btn-success">
-                    <i class="fas fa-user-plus"></i> Agregar Nuevo Docente
-                </a>
-                <a href="<?php echo BASE_URL; ?>views/usuarios_list.php" class="btn btn-primary">
-                    <i class="fas fa-users-cog"></i> Gestionar Usuarios
-                </a>
-                <a href="<?php echo BASE_URL; ?>views/clientes_list.php" class="btn btn-primary">
-                    <i class="fas fa-users"></i> Gestionar Clientes API
-                </a>
-            </div>
-        </div>
+      <!-- Acciones rápidas -->
+<div class="quick-actions">
+    <h3><i class="fas fa-rocket"></i> Acciones Rápidas</h3>
+    <div class="btn-container">
+        <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="btn btn-primary">
+            <i class="fas fa-users"></i> Ver Todos los Docentes
+        </a>
+        <a href="<?php echo BASE_URL; ?>views/docente_form.php" class="btn btn-success">
+            <i class="fas fa-user-plus"></i> Agregar Nuevo Docente
+        </a>
+        <a href="<?php echo BASE_URL; ?>views/usuarios_list.php" class="btn btn-primary">
+            <i class="fas fa-users-cog"></i> Gestionar Usuarios
+        </a>
+        <a href="<?php echo BASE_URL; ?>views/clientes_list.php" class="btn btn-primary">
+            <i class="fas fa-users"></i> Gestionar Clientes API
+        </a>
+        <a href="<?php echo BASE_URL; ?>views/tokens_list.php" class="btn btn-primary">
+            <i class="fas fa-key"></i> Gestionar Tokens API
+        </a>
+    </div>
+</div>
+
 
         <!-- Información del usuario -->
         <div class="session-info">
