@@ -50,5 +50,7 @@ class ClientApiController
     {
         return $this->clientApiModel->eliminarCliente($id);
     }
+
+    
 }
 ?>

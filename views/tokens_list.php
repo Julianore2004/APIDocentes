@@ -22,13 +22,33 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     }
 }
 
+// Manejar cambio de estado
+if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
+    require_once __DIR__ . '/../controllers/TokenApiController.php';
+    $tokenApiController = new TokenApiController();
+    $token = $tokenApiController->obtenerToken($_GET['toggle']);
+    $nuevoEstado = $token['estado'] ? 0 : 1;
+    if ($tokenApiController->cambiarEstadoToken($_GET['toggle'], $nuevoEstado)) {
+        $mensaje = "✅ Estado del token actualizado exitosamente";
+        $tipo_mensaje = "success";
+    } else {
+        $mensaje = "❌ Error al actualizar el estado del token";
+        $tipo_mensaje = "error";
+    }
+}
+
 // Obtener lista de tokens
 require_once __DIR__ . '/../controllers/TokenApiController.php';
 $tokenApiController = new TokenApiController();
-$tokens = $tokenApiController->listarTokens();
+
+// Búsqueda por nombre
+$nombreBusqueda = isset($_GET['search']) ? trim($_GET['search']) : '';
+$tokens = $nombreBusqueda ? $tokenApiController->buscarTokensPorNombre($nombreBusqueda) : $tokenApiController->listarTokens();
+require_once __DIR__ . '/include/header.php';
 ?>
 <!-- Incluir Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
 <style>
     /* Estilos globales */
@@ -89,6 +109,22 @@ $tokens = $tokenApiController->listarTokens();
     .table-header h3 {
         color: #2d3748;
         margin: 0;
+    }
+
+    /* Barra de búsqueda */
+    .search-container {
+        padding: 1.5rem;
+        background: rgba(102, 126, 234, 0.05);
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .search-box {
+        width: 100%;
+        max-width: 400px;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 5px;
+        font-size: 1rem;
     }
 
     /* Tabla */
@@ -191,6 +227,52 @@ $tokens = $tokenApiController->listarTokens();
         font-size: 0.875rem;
         word-break: break-all;
     }
+
+    /* Toggle switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #48bb78;
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
 </style>
 
 <div class="container fade-in">
@@ -207,6 +289,13 @@ $tokens = $tokenApiController->listarTokens();
             <a href="<?php echo BASE_URL; ?>views/token_form.php" class="btn btn-success">
                 <i class="fas fa-plus"></i> Generar Nuevo Token
             </a>
+        </div>
+
+        <!-- Barra de búsqueda -->
+        <div class="search-container">
+            <form method="GET" action="">
+                <input type="text" name="search" class="search-box" placeholder="🔍 Buscar por nombre de cliente..." value="<?php echo htmlspecialchars($nombreBusqueda); ?>">
+            </form>
         </div>
 
         <?php if (empty($tokens)): ?>
@@ -240,14 +329,15 @@ $tokens = $tokenApiController->listarTokens();
                         <td><?php echo htmlspecialchars($token['razon_social']); ?></td>
                         <td class="token"><?php echo htmlspecialchars($token['token']); ?></td>
                         <td><?php echo date('d/m/Y H:i', strtotime($token['fecha_registro'])); ?></td>
-                        <td class="<?php echo $token['estado'] ? 'estado-activo' : 'estado-inactivo'; ?>">
-                            <?php echo $token['estado'] ? 'Activo' : 'Inactivo'; ?>
+                        <td>
+                            <label class="toggle-switch">
+                                <input type="checkbox" <?php echo $token['estado'] ? 'checked' : ''; ?>
+                                       onchange="cambiarEstado(<?php echo $token['id']; ?>, this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
                         </td>
                         <td>
                             <div class="table-actions">
-                                <a href="<?php echo BASE_URL; ?>views/token_form.php?edit=<?php echo $token['id']; ?>" class="btn btn-small btn-warning" title="Editar token">
-                                    <i class="fas fa-edit"></i>
-                                </a>
                                 <button onclick="confirmarEliminacion(<?php echo $token['id']; ?>, '<?php echo addslashes($token['token']); ?>')" class="btn btn-small btn-danger" title="Eliminar token">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -267,5 +357,9 @@ $tokens = $tokenApiController->listarTokens();
         if (confirm(`¿Estás seguro de que deseas eliminar el token "${token.substring(0, 10)}..."?\n\nEsta acción no se puede deshacer.`)) {
             window.location.href = `<?php echo BASE_URL; ?>views/tokens_list.php?delete=${id}`;
         }
+    }
+
+    function cambiarEstado(id, nuevoEstado) {
+        window.location.href = `<?php echo BASE_URL; ?>views/tokens_list.php?toggle=${id}`;
     }
 </script>

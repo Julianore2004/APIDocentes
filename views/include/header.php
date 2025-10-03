@@ -99,6 +99,7 @@
       <a href="<?php echo BASE_URL; ?>views/dashboard.php" class="nav-link">Dashboard</a>
       <a href="<?php echo BASE_URL; ?>views/docentes_list.php" class="nav-link">Docentes</a>
       <a href="<?php echo BASE_URL; ?>views/clientes_list.php" class="nav-link">Clientes</a>
+  <a href="<?php echo BASE_URL; ?>views/tokens_list.php" class="nav-link">Tokens</a>
   
      
 <a href="#" onclick="logout(); return false;" class="btn-logout"> Cerrar Sesión</a>

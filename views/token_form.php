@@ -12,26 +12,12 @@ if (!isset($_SESSION['user_id'])) {
 require_once __DIR__ . '/../controllers/TokenApiController.php';
 $tokenApiController = new TokenApiController();
 
-// Determinar si es edición o creación
-$isEditing = isset($_GET['edit']) && is_numeric($_GET['edit']);
-$token = null;
-$pageTitle = $isEditing ? '✏️ Editar Token' : '➕ Generar Nuevo Token';
-
 // Obtener clientes
 $clientes = $tokenApiController->obtenerClientes();
-
-if ($isEditing) {
-    $token = $tokenApiController->obtenerToken($_GET['edit']);
-    if (!$token) {
-        header('Location: ' . BASE_URL . 'views/tokens_list.php');
-        exit();
-    }
-}
 
 // Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_client_api = trim($_POST['id_client_api']);
-    $estado = $isEditing ? (isset($_POST['estado']) ? 1 : 0) : 1;
 
     // Validaciones
     $errores = [];
@@ -40,29 +26,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errores)) {
-        if ($isEditing) {
-            $resultado = $tokenApiController->editarToken($_GET['edit'], $estado);
-            if ($resultado) {
-                $mensaje = "✅ Token actualizado exitosamente";
-                $tipo_mensaje = "success";
-                $token = $tokenApiController->obtenerToken($_GET['edit']);
-            } else {
-                $mensaje = "❌ Error al actualizar el token";
-                $tipo_mensaje = "error";
-            }
+        $resultado = $tokenApiController->crearToken($id_client_api);
+        if ($resultado) {
+            $tokenGenerado = $tokenApiController->obtenerToken($resultado);
+            $mensaje = "✅ Token generado exitosamente";
+            $tipo_mensaje = "success";
         } else {
-            $resultado = $tokenApiController->crearToken($id_client_api);
-            if ($resultado) {
-                header('Location: ' . BASE_URL . 'views/tokens_list.php?created=1');
-                exit();
-            } else {
-                $mensaje = "❌ Error al generar el token";
-                $tipo_mensaje = "error";
-            }
+            $mensaje = "❌ Error al generar el token";
+            $tipo_mensaje = "error";
         }
     }
 }
+require_once __DIR__ . '/include/header.php';
 ?>
+
+<!-- Incluir Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
 <style>
     /* Estilos globales */
@@ -174,16 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: white;
     }
 
-    .btn-warning {
-        background-color: #fbbf24;
-        color: white;
-    }
-
-    .btn-danger {
-        background-color: #f56565;
-        color: white;
-    }
-
     .btn-cancel {
         background-color: #e2e8f0;
         color: #2d3748;
@@ -224,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <span>></span>
         <a href="<?php echo BASE_URL; ?>views/tokens_list.php">🔑 Tokens</a>
         <span>></span>
-        <span><?php echo $isEditing ? 'Editar' : 'Nuevo'; ?></span>
+        <span>Nuevo</span>
     </div>
 
     <!-- Mensajes -->
@@ -247,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="form-container">
         <div class="form-header">
-            <h2><?php echo $pageTitle; ?></h2>
+            <h2>➕ Generar Nuevo Token</h2>
             <a href="<?php echo BASE_URL; ?>views/tokens_list.php" class="btn btn-cancel">
                 ← Volver al listado
             </a>
@@ -262,30 +232,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select id="id_client_api" name="id_client_api" class="form-control" required>
                             <option value="">-- Seleccione un cliente --</option>
                             <?php foreach ($clientes as $cliente): ?>
-                                <option value="<?php echo $cliente['id']; ?>"
-                                    <?php echo ($isEditing && $token['id_client_api'] == $cliente['id']) ? 'selected' : ''; ?>>
+                                <option value="<?php echo $cliente['id']; ?>">
                                     <?php echo htmlspecialchars($cliente['razon_social']); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-
-                    <?php if ($isEditing): ?>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" name="estado" value="1" <?php echo isset($token['estado']) && $token['estado'] ? 'checked' : ''; ?>> Estado (Activo)
-                        </label>
-                    </div>
-                    <?php endif; ?>
-
-                    <?php if ($isEditing): ?>
-                    <div class="form-group">
-                        <label>Token Generado</label>
-                        <div class="token-display">
-                            <?php echo htmlspecialchars($token['token']); ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
                 </div>
             </div>
 
@@ -297,17 +249,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a href="<?php echo BASE_URL; ?>views/tokens_list.php" class="btn btn-cancel">
                         ❌ Cancelar
                     </a>
-                    <?php if ($isEditing): ?>
-                    <button type="submit" class="btn btn-warning">
-                        💾 Actualizar Token
-                    </button>
-                    <?php else: ?>
                     <button type="submit" class="btn btn-success">
                         ➕ Generar Token
                     </button>
-                    <?php endif; ?>
                 </div>
             </div>
         </form>
+
+        <?php if (isset($tokenGenerado)): ?>
+        <div class="form-section">
+            <h4>🔐 Token Generado</h4>
+            <div class="token-display">
+                <?php echo htmlspecialchars($tokenGenerado['token']); ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
