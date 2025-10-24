@@ -1,10 +1,11 @@
 # .htaccess corregido para APIDOCENTES
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /APIDocentes/
-    # Regla para el API Cliente
-RewriteRule ^api_cliente/api_handler\.php$ api_cliente/api_handler.php [L]
+      RewriteEngine On
+    RewriteBase /
 
+    # Permitir acceso directo a archivos en /api_cliente/
+    RewriteCond %{REQUEST_URI} ^/api_cliente/ [NC]
+    RewriteRule ^ - [L]
 
     # Permitir acceso directo a archivos CSS, JS, imágenes
     RewriteCond %{REQUEST_URI} \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf)$ [NC]
