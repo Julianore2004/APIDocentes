@@ -18,16 +18,24 @@ class ClientApi
     }
 
     // Obtener todos los clientes
-    public function obtenerClientes()
-    {
-        $query = "SELECT * FROM client_api";
-        $resultado = $this->conexion->query($query);
-        $clientes = [];
-        while ($fila = $resultado->fetch_assoc()) {
-            $clientes[] = $fila;
-        }
-        return $clientes;
+   public function obtenerClientes()
+{
+    $query = "SELECT * FROM client_api";
+    $resultado = $this->conexion->query($query);
+
+    // Verificar si la consulta falló
+    if (!$resultado) {
+        error_log("Error en la consulta: " . $this->conexion->error);
+        return [];
     }
+
+    $clientes = [];
+    while ($fila = $resultado->fetch_assoc()) {
+        $clientes[] = $fila;
+    }
+    return $clientes;
+}
+
 
     // Obtener un cliente por ID
     public function obtenerClientePorId($id)

@@ -18,16 +18,24 @@ class TokenApi
     }
 
     // Obtener todos los tokens
-    public function obtenerTokens()
-    {
-        $query = "SELECT t.*, c.razon_social FROM tokens_api t JOIN client_api c ON t.id_client_api = c.id";
-        $resultado = $this->conexion->query($query);
-        $tokens = [];
-        while ($fila = $resultado->fetch_assoc()) {
-            $tokens[] = $fila;
-        }
-        return $tokens;
+   public function obtenerTokens()
+{
+    $query = "SELECT t.*, c.razon_social FROM tokens_api t JOIN client_api c ON t.id_client_api = c.id";
+    $resultado = $this->conexion->query($query);
+
+    // Verificar si la consulta falló
+    if (!$resultado) {
+        error_log("Error en la consulta: " . $this->conexion->error);
+        return [];
     }
+
+    $tokens = [];
+    while ($fila = $resultado->fetch_assoc()) {
+        $tokens[] = $fila;
+    }
+    return $tokens;
+}
+
 
     // Obtener un token por ID
     public function obtenerTokenPorId($id)
