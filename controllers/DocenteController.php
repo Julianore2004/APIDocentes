@@ -73,6 +73,32 @@ public function editarDocente($id, $nombres, $apellidos, $correo, $telefono, $id
         }
         return $cursos;
     }
+   public function buscarDocentesPorNombreApellido($search)
+{
+    $search = "%" . $this->getConexion()->real_escape_string($search) . "%";
+    $query = "
+        SELECT d.*
+        FROM docentes d
+        WHERE d.nombres LIKE ? OR d.apellidos LIKE ?
+    ";
+    $stmt = $this->docenteModel->getConexion()->prepare($query);
+    $stmt->bind_param("ss", $search, $search);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    $docentes = [];
+    while ($fila = $resultado->fetch_assoc()) {
+        $docentes[] = $fila;
+    }
+    return $docentes;
+}
+
+public function obtenerCarreraPorId($id_carrera)
+{
+    require_once __DIR__ . '/../models/Carrera.php';
+    $carreraModel = new Carrera();
+    return $carreraModel->obtenerCarreraPorId($id_carrera);
+}
+
 }
 ?>
 <?php

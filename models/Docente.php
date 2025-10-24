@@ -85,5 +85,14 @@ public function getConexion() {
     }
     return true;
 }
+public function obtenerCarreraPorId($id)
+{
+    $stmt = $this->conexion->prepare("SELECT * FROM carreras WHERE id_carrera = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    return $resultado->fetch_assoc();
+}
+
 
 }

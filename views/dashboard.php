@@ -315,9 +315,10 @@ require_once __DIR__ . '/include/header.php';
             <i class="fas fa-key"></i> Gestionar Tokens API
         </a>
          <!-- ... otros botones ... -->
-        <a href="<?php echo BASE_URL; ?>views/api/prueba_api.php" class="btn btn-primary">
-            <i class="fas fa-code"></i> Probar API Docentes
-        </a>
+       <a href="<?php echo BASE_URL; ?>api_cliente/" class="btn btn-primary" target="_blank">
+    <i class="fas fa-external-link-alt"></i> Probar API Cliente
+</a>
+
 
     </div>
 </div>
