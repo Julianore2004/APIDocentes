@@ -31,7 +31,7 @@ switch ($action) {
         foreach ($docentes as &$docente) {
             $carrera = $docenteController->obtenerCarreraPorId($docente['id_carrera']);
             $docente['carrera_nombre'] = $carrera['nombre'] ?? 'Sin carrera';
-            // No ocultar correo ni teléfono
+            unset($docente['correo'], $docente['telefono']); // Ocultar información sensible
         }
         echo json_encode(['status' => true, 'data' => $docentes]);
         break;
