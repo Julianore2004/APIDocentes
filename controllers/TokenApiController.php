@@ -80,7 +80,8 @@ class TokenApiController
         }
         return $tokens;
     }
-  public function obtenerTokenPorToken($token)
+
+public function obtenerTokenPorToken($token)
 {
     $stmt = $this->tokenApiModel->getConexion()->prepare("
         SELECT t.*, c.estado as cliente_estado

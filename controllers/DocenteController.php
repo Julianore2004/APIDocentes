@@ -99,6 +99,7 @@ public function obtenerCarreraPorId($id_carrera)
     return $carreraModel->obtenerCarreraPorId($id_carrera);
 }
 
+
 }
 ?>
 <?php
