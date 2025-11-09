@@ -73,16 +73,25 @@ public function editarDocente($id, $nombres, $apellidos, $correo, $telefono, $id
         }
         return $cursos;
     }
-   public function buscarDocentesPorNombreApellido($search)
+ public function buscarDocentesPorNombreApellido($search)
 {
     $search = "%" . $this->getConexion()->real_escape_string($search) . "%";
     $query = "
         SELECT d.*
         FROM docentes d
-        WHERE d.nombres LIKE ? OR d.apellidos LIKE ?
+        WHERE d.nombres LIKE ?
+           OR d.apellidos LIKE ?
+           OR d.especialidad LIKE ?
+        ORDER BY
+            CASE
+                WHEN d.nombres LIKE ? THEN 1
+                WHEN d.apellidos LIKE ? THEN 2
+                ELSE 3
+            END,
+            d.nombres, d.apellidos
     ";
     $stmt = $this->docenteModel->getConexion()->prepare($query);
-    $stmt->bind_param("ss", $search, $search);
+    $stmt->bind_param("sssss", $search, $search, $search, $search, $search);
     $stmt->execute();
     $resultado = $stmt->get_result();
     $docentes = [];
