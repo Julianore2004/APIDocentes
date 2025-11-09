@@ -1,6 +1,5 @@
 # .htaccess corregido para APIDOCENTES
 <IfModule mod_rewrite.c>
-
       RewriteEngine On
     RewriteBase /
 
@@ -21,8 +20,4 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} !\.(php)$ [NC]
     RewriteRule ^(.*)$ index.php [L]
-
-    # Permitir acceso directo a api_handler.php
-    RewriteRule ^api_handler\.php$ - [L]
-
 </IfModule>
