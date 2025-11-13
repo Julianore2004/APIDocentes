@@ -1,24 +1,45 @@
 <?php
+// api_handler.php (APIDOCENTES)
 header('Content-Type: application/json');
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/controllers/TokenApiController.php';
-require_once __DIR__ . '/controllers/DocenteController.php';
 
 // Obtener el token y la acción
 $token = $_POST['token'] ?? '';
 $action = $_GET['action'] ?? '';
 
-// Validar que el token no esté vacío
-if (empty($token)) {
+// Validar el token en APIDOCENTES
+if ($action === 'validarToken') {
+    $tokenController = new TokenApiController();
+    $tokenData = $tokenController->obtenerTokenPorToken($token);
+
+    if (!$tokenData) {
+        echo json_encode([
+            'status' => false,
+            'type' => 'error',
+            'msg' => 'Token no encontrado en APIDOCENTES.'
+        ]);
+        exit();
+    }
+
+    if ($tokenData['estado'] != 1) {
+        echo json_encode([
+            'status' => false,
+            'type' => 'warning',
+            'msg' => 'Token inactivo en APIDOCENTES.'
+        ]);
+        exit();
+    }
+
     echo json_encode([
-        'status' => false,
-        'type' => 'error',
-        'msg' => 'Token no proporcionado.'
+        'status' => true,
+        'type' => 'success',
+        'msg' => 'Token válido en APIDOCENTES.'
     ]);
     exit();
 }
 
-// Validar el token en la base de datos de APIDOCENTES
+// Procesar otras acciones (buscarDocentes, etc.)
 $tokenController = new TokenApiController();
 $tokenData = $tokenController->obtenerTokenPorToken($token);
 
@@ -26,7 +47,7 @@ if (!$tokenData) {
     echo json_encode([
         'status' => false,
         'type' => 'error',
-        'msg' => 'Token no encontrado en la base de datos de APIDOCENTES.'
+        'msg' => 'Token no encontrado en APIDOCENTES.'
     ]);
     exit();
 }
@@ -35,21 +56,22 @@ if ($tokenData['estado'] != 1) {
     echo json_encode([
         'status' => false,
         'type' => 'warning',
-        'msg' => 'Token inactivo en la base de datos de APIDOCENTES.'
+        'msg' => 'Token inactivo en APIDOCENTES.'
     ]);
     exit();
 }
 
-// Procesar la acción
-$docenteController = new DocenteController();
+// Procesar la acción (ej: buscarDocentes)
 switch ($action) {
     case 'buscarDocentes':
+        require_once __DIR__ . '/controllers/DocenteController.php';
+        $docenteController = new DocenteController();
         $search = $_POST['search'] ?? '';
         $docentes = $docenteController->buscarDocentesPorNombreApellido($search);
         foreach ($docentes as &$docente) {
             $carrera = $docenteController->obtenerCarreraPorId($docente['id_carrera']);
             $docente['carrera_nombre'] = $carrera['nombre'] ?? 'Sin carrera';
-            unset($docente['correo'], $docente['telefono']); // Ocultar información sensible
+            unset($docente['correo'], $docente['telefono']);
         }
         echo json_encode([
             'status' => true,
